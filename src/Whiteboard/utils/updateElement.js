@@ -2,6 +2,7 @@ import { createElement } from "./index";
 import { toolTypes } from "../../constants";
 import { store } from "../../store/store";
 import { setElements } from "../whiteboardSlice";
+import { emitElementUpdate } from "../../socketConn/socketConn";
 
 export const updateElement = (
   { id, x1, x2, y1, y2, type, index },
@@ -11,7 +12,7 @@ export const updateElement = (
 
   switch (type) {
     case toolTypes.RECTANGLE:
-      const updateElement = createElement({
+      const updatedElement = createElement({
         id,
         x1,
         y1,
@@ -20,9 +21,11 @@ export const updateElement = (
         toolType: type,
       });
 
-      elementsCopy[index] = updateElement;
+      elementsCopy[index] = updatedElement;
 
       store.dispatch(setElements(elementsCopy));
+
+      emitElementUpdate(updatedElement)
       break;
     default:
       throw new Error("Something went wrong when updating element");
