@@ -1,3 +1,3 @@
 export const toolTypes = {
-    RECTANGLE: 'RECTANGLE',
-}
+    RECTANGLE: "RECTANGLE",
+};
