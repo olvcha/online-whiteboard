@@ -1,4 +1,5 @@
 import React from 'react';
+import Whiteboard from './Whiteboard/Whiteboard';
 
 
 
@@ -6,7 +7,7 @@ import React from 'react';
 function App() {
   return (
     <div>
-      Hello world
+      <Whiteboard />
     </div>
   );
 }
