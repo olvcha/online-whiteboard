@@ -22,6 +22,13 @@ export const createElement = ({ x1, y1, x2, y2, toolType, id }) => {
         x2,
         y2,
       };
+    case toolTypes.PENCIL:
+      return {
+        id,
+        type: toolType,
+        points: [{ x: x1, y: y1}],
+
+      }
     default:
       throw new Error("Something went wrong when creating element");
   }

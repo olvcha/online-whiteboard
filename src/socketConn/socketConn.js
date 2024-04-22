@@ -1,8 +1,8 @@
-let socket;
+
 import {io} from "socket.io-client"
 import {store} from "../store/store"
 import { setElements, updateElement } from "../Whiteboard/whiteboardSlice";
-
+let socket;
 
 export const connectWithSocketServer = () =>{
     socket = io("http://localhost:3003");
