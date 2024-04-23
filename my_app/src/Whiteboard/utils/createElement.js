@@ -7,6 +7,10 @@ const generateRectangle = ({ x1, y1, x2, y2 }) => {
   return generator.rectangle(x1, y1, x2 - x1, y2 - y1);
 };
 
+const generateLine = ({ x1, y1, x2, y2 }) => {
+  return generator.line(x1, y1, x2, y2);
+};
+
 export const createElement = ({ x1, y1, x2, y2, toolType, id }) => {
   let roughElement;
 
@@ -28,7 +32,18 @@ export const createElement = ({ x1, y1, x2, y2, toolType, id }) => {
         type: toolType,
         points: [{ x: x1, y: y1}],
 
-      }
+      };
+      case toolTypes.LINE:
+        roughElement = generateLine({x1, x2, y1, y2});
+        return{
+          id: id,
+          roughElement,
+          type: toolType,
+          x1,
+          y1,
+          x2,
+          y2,
+        };
     default:
       throw new Error("Something went wrong when creating element");
   }
