@@ -5,7 +5,8 @@ import { setElements, updateElement } from "../Whiteboard/whiteboardSlice";
 let socket;
 
 export const connectWithSocketServer = () =>{
-    socket = io("http://localhost:3003");
+    // socket = io("http://localhost:3003"); // for local host
+    socket = io("/");
 
     socket.on("console", () =>{
         console.log("connected to socket.io server");
