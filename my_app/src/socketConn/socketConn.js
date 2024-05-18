@@ -4,9 +4,10 @@ import {store} from "../store/store"
 import { setElements, updateElement } from "../Whiteboard/whiteboardSlice";
 let socket;
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3003";
+
 export const connectWithSocketServer = () =>{
-    // socket = io("http://localhost:3003"); // for local host
-    socket = io("/");
+    socket = io(BACKEND_URL);
 
     socket.on("console", () =>{
         console.log("connected to socket.io server");
