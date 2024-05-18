@@ -3,8 +3,6 @@ import { connectWithSocketServer } from "./socketConn/socketConn";
 import { ToastContainer } from "react-toastify";
 import JoinCreateRoom from "./JoinCreateRoom";
 import Room from "./Room";
-// index.js or App.js
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {

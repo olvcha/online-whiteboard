@@ -12,7 +12,7 @@ import {
 } from "./utils";
 import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore } from "./whiteboardSlice";
-import { emitCursorPosition, emitElementUpdate} from "../socketConn/socketConn";
+import { emitCursorPosition, emitElementUpdate } from "../socketConn/socketConn";
 import PropTypes from 'prop-types';
 
 let emitCursor = true;
@@ -115,12 +115,12 @@ const Whiteboard = ({ user }) => {
         lastCursorPosition = { x: clientX, y: clientY };
 
         if (emitCursor) {
-            emitCursorPosition({ x: clientX, y: clientY, roomId: user.roomId }); // Emit cursor position with room context
+            emitCursorPosition({ x: clientX, y: clientY, userId: user.userId, userName: user.userName, roomId: user.roomId }); // Emit cursor position with user context
             emitCursor = false;
 
             setTimeout(() => {
                 emitCursor = true;
-                emitCursorPosition(lastCursorPosition);
+                emitCursorPosition({ ...lastCursorPosition, userId: user.userId, userName: user.userName, roomId: user.roomId });
             }, 50);
         }
 

@@ -9,7 +9,7 @@ const cursorSlice = createSlice({
     initialState,
     reducers: {
         updateCursorPosition: (state, action) => {
-            const { x, y, userId } = action.payload;
+            const { x, y, userId, userName } = action.payload;
 
             const index = state.cursors.findIndex((c) => c.userId === userId);
 
@@ -18,12 +18,14 @@ const cursorSlice = createSlice({
                     userId,
                     x,
                     y,
+                    userName, // Update userName if it already exists
                 };
             } else {
                 state.cursors.push({
                     userId,
                     x,
                     y,
+                    userName, // Add new cursor with userName
                 });
             }
         },
@@ -33,7 +35,6 @@ const cursorSlice = createSlice({
     },
 });
 
-export const { updateCursorPosition, removeCursorPosition } =
-    cursorSlice.actions;
+export const { updateCursorPosition, removeCursorPosition } = cursorSlice.actions;
 
 export default cursorSlice.reducer;
