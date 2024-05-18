@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     tool: null,
     elements: [],
+    roomId: null, // Track current room ID
 };
 
 const whiteboardSlice = createSlice({
@@ -20,21 +21,18 @@ const whiteboardSlice = createSlice({
             if (index === -1) {
                 state.elements.push(action.payload);
             } else {
-                // if index will be found
-                // update element in our array of elements
-
                 state.elements[index] = action.payload;
-           
             }
         },
         setElements: (state, action) => {
             state.elements = action.payload;
         },
+        setRoomId: (state, action) => {
+            state.roomId = action.payload;
+        },
     },
 });
 
-export const { setToolType, updateElement, setElements } =
-    whiteboardSlice.actions;
+export const { setToolType, updateElement, setElements, setRoomId } = whiteboardSlice.actions;
 
 export default whiteboardSlice.reducer;
-

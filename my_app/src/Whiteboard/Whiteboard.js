@@ -8,26 +8,24 @@ import {
     updateElement,
     drawElement,
     adjustmentRequired,
-    getCursorForPosition,
     adjustElementCoordinates,
 } from "./utils";
 import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore } from "./whiteboardSlice";
-import {emitCursorPosition} from "../socketConn/socketConn";
+import { emitCursorPosition, emitElementUpdate} from "../socketConn/socketConn";
+import PropTypes from 'prop-types';
 
 let emitCursor = true;
 let lastCursorPosition;
 
-
-
-const Whiteboard = () => {
+const Whiteboard = ({ user }) => {
     const canvasRef = useRef();
     const textAreaRef = useRef();
     const toolType = useSelector((state) => state.whiteboard.tool);
     const elements = useSelector((state) => state.whiteboard.elements);
 
     const [action, setAction] = useState(null);
-    const [selectedElement,setSelectedElement] = useState(null);
+    const [selectedElement, setSelectedElement] = useState(null);
 
     const dispatch = useDispatch();
 
@@ -46,9 +44,9 @@ const Whiteboard = () => {
 
     const handleMouseDown = (event) => {
         const { clientX, clientY } = event;
-        console.log(toolType);
-        if(selectedElement && action === actions.WRITING){
-            return
+
+        if (selectedElement && action === actions.WRITING) {
+            return;
         }
 
         const element = createElement({
@@ -60,21 +58,23 @@ const Whiteboard = () => {
             id: uuid(),
         });
 
-        switch (toolType){
+        switch (toolType) {
             case toolTypes.RECTANGLE:
             case toolTypes.PENCIL:
-            case toolTypes.LINE:   {
+            case toolTypes.LINE: {
                 setAction(actions.DRAWING);
                 break;
             }
-            case toolTypes.TEXT:{
+            case toolTypes.TEXT: {
                 setAction(actions.WRITING);
                 break;
             }
+            default:
+                break;
         }
         setSelectedElement(element);
         dispatch(updateElementInStore(element));
-
+        emitElementUpdate({ ...element, roomId: user.roomId }); // Emit element update with room context
     };
 
     const handleMouseUp = () => {
@@ -115,21 +115,16 @@ const Whiteboard = () => {
         lastCursorPosition = { x: clientX, y: clientY };
 
         if (emitCursor) {
-            emitCursorPosition({ x: clientX, y: clientY });
+            emitCursorPosition({ x: clientX, y: clientY, roomId: user.roomId }); // Emit cursor position with room context
             emitCursor = false;
-
-            console.log("sending-position");
 
             setTimeout(() => {
                 emitCursor = true;
                 emitCursorPosition(lastCursorPosition);
-            }, [50]);
+            }, 50);
         }
 
-
-
         if (action === actions.DRAWING) {
-            // find index of selected element
             const index = elements.findIndex((el) => el.id === selectedElement.id);
 
             if (index !== -1) {
@@ -145,41 +140,54 @@ const Whiteboard = () => {
                     },
                     elements
                 );
+                emitElementUpdate({ ...elements[index], roomId: user.roomId }); // Emit element update with room context
             }
         }
     };
 
-    const handleTextareaBlur= (event)  => {
-        const {id, x1, y1, type}= selectedElement
-        const index = elements.findIndex(el => el.id === selectedElement.id);
-        if(index !== -1){
-            updateElement({id, x1, y1, type, text : event.target.value, index},
-                elements);
+    const handleTextareaBlur = (event) => {
+        const { id, x1, y1, type } = selectedElement;
+        const index = elements.findIndex((el) => el.id === selectedElement.id);
+        if (index !== -1) {
+            const updatedElement = {
+                id,
+                x1,
+                y1,
+                type,
+                text: event.target.value,
+                index,
+            };
+            updateElement(updatedElement, elements);
+            dispatch(updateElementInStore(updatedElement));
+            emitElementUpdate({ ...updatedElement, roomId: user.roomId }); // Emit element update with room context
             setAction(null);
             setSelectedElement(null);
         }
     };
+
     return (
         <>
             <Menu />
-            {action === actions.WRITING ? <textarea
-            ref={textAreaRef}
-            onBlur={handleTextareaBlur}
-            style={{
-                position: 'absolute',
-                top: selectedElement.y1 - 3,
-                left: selectedElement.x1,
-                font: '24px sans-serif',
-                margin: 0,
-                padding:0,
-                border:0,
-                outline:0,
-                resize: 'auto',
-                overflow:'hidden',
-                whiteSpace: 'pre',
-                background: 'transparent',
-            }}
-            /> : null }
+            {action === actions.WRITING ? (
+                <textarea
+                    ref={textAreaRef}
+                    onBlur={handleTextareaBlur}
+                    style={{
+                        position: 'absolute',
+                        top: selectedElement.y1 - 3,
+                        left: selectedElement.x1,
+                        font: '24px sans-serif',
+                        margin: 0,
+                        padding: 0,
+                        border: 0,
+                        outline: 0,
+                        resize: 'auto',
+                        overflow: 'hidden',
+                        whiteSpace: 'pre',
+                        background: 'transparent',
+                    }}
+                />
+            ) : null}
             <canvas
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
@@ -191,6 +199,14 @@ const Whiteboard = () => {
             />
         </>
     );
+};
+
+Whiteboard.propTypes = {
+    user: PropTypes.shape({
+        roomId: PropTypes.string.isRequired,
+        userId: PropTypes.string.isRequired,
+        userName: PropTypes.string.isRequired,
+    }).isRequired,
 };
 
 export default Whiteboard;

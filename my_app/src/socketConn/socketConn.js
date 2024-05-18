@@ -34,6 +34,12 @@ export const connectWithSocketServer = () => {
     socket.on("user-disconnected", (disconnectedUserId) => {
         store.dispatch(removeCursorPosition(disconnectedUserId));
     });
+
+    return socket; // Return the socket instance
+};
+
+export const joinRoom = (roomId) => {
+    socket.emit('join-room', roomId);
 };
 
 export const emitElementUpdate = (elementData) => {
