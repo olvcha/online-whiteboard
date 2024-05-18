@@ -31,7 +31,19 @@ io.on('connection', (socket)=>{
         elements = [];
         
         socket.broadcast.emit("whiteboard-clear");
-    })
+    });
+
+    socket.on('cursor-position',(cursorData) => {
+        socket.broadcast.emit('cursor-position', {
+            ...cursorData,
+            userId: socket.id,
+        });
+    });
+
+    socket.on("disconnect", () => {
+        socket.broadcast.emit("user-disconnected", socket.id);
+    });
+
 });
 
 app.get('/',(req, res) =>{
@@ -50,4 +62,4 @@ const updateElementIntElements =(elementData) =>{
     if (index === -1) return elements.push(elementData)
 
     elements[index] = elementData;
-}
+};

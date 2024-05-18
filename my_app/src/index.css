@@ -37,3 +37,7 @@ body {
   border: none;
   background: #E8D5C4;
 }
+
+.cursor {
+  transition: 0.1s;
+}

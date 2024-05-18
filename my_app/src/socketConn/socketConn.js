@@ -1,15 +1,17 @@
-
-import {io} from "socket.io-client"
-import {store} from "../store/store"
+import { io } from "socket.io-client";
+import {
+    updateCursorPosition,
+    removeCursorPosition,
+} from "../CursorOverlay/cursorSlice";
+import { store } from "../store/store";
 import { setElements, updateElement } from "../Whiteboard/whiteboardSlice";
+
 let socket;
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3003";
+export const connectWithSocketServer = () => {
+    socket = io("http://localhost:3003");
 
-export const connectWithSocketServer = () =>{
-    socket = io(BACKEND_URL);
-
-    socket.on("console", () =>{
+    socket.on("connect", () => {
         console.log("connected to socket.io server");
     });
 
@@ -23,14 +25,25 @@ export const connectWithSocketServer = () =>{
 
     socket.on("whiteboard-clear", () => {
         store.dispatch(setElements([]));
-    })
+    });
+
+    socket.on("cursor-position", (cursorData) => {
+        store.dispatch(updateCursorPosition(cursorData));
+    });
+
+    socket.on("user-disconnected", (disconnectedUserId) => {
+        store.dispatch(removeCursorPosition(disconnectedUserId));
+    });
 };
 
 export const emitElementUpdate = (elementData) => {
     socket.emit("element-update", elementData);
-
 };
 
 export const emitClearWhiteboard = () => {
     socket.emit("whiteboard-clear");
+};
+
+export const emitCursorPosition = (cursorData) => {
+    socket.emit("cursor-position", cursorData);
 };
