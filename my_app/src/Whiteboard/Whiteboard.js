@@ -2,13 +2,17 @@ import React, { useRef, useLayoutEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Menu from "./Menu";
 import rough from "roughjs/bundled/rough.esm";
-import { actions, toolTypes } from "../constants";
+import { actions, cursorPositions, toolTypes } from "../constants";
 import {
     createElement,
     updateElement,
     drawElement,
     adjustmentRequired,
     adjustElementCoordinates,
+    getElementAtPosition,
+    getCursorForPosition,
+    getResizedCoordinates,
+
 } from "./utils";
 import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore } from "./whiteboardSlice";
@@ -49,32 +53,55 @@ const Whiteboard = ({ user }) => {
             return;
         }
 
-        const element = createElement({
-            x1: clientX,
-            y1: clientY,
-            x2: clientX,
-            y2: clientY,
-            toolType,
-            id: uuid(),
-        });
-
         switch (toolType) {
             case toolTypes.RECTANGLE:
-            case toolTypes.PENCIL:
-            case toolTypes.LINE: {
+            case toolTypes.LINE:
+            case toolTypes.PENCIL: {
+                const element = createElement({
+                    x1: clientX,
+                    y1: clientY,
+                    x2: clientX,
+                    y2: clientY,
+                    toolType,
+                    id: uuid(),
+                });
                 setAction(actions.DRAWING);
+                setSelectedElement(element);
+                dispatch(updateElementInStore(element));
                 break;
             }
             case toolTypes.TEXT: {
+                const element = createElement({
+                    x1: clientX,
+                    y1: clientY,
+                    x2: clientX,
+                    y2: clientY,
+                    toolType,
+                    id: uuid(),
+                });
                 setAction(actions.WRITING);
+                setSelectedElement(element);
+                dispatch(updateElementInStore(element));
                 break;
             }
-            default:
+            case toolTypes.SELECTION:{
+                const element = getElementAtPosition(clientX, clientY, elements)
+
+                if(element && element.type === toolTypes.RECTANGLE){
+                    setAction(
+                        element.position === cursorPositions.INSIDE ? actions.MOVING : actions.RESIZING);
+
+                    const offsetX = clientX - element.x1;
+                    const offsetY = clientY - element.y1;
+
+                    setSelectedElement({...element, offsetX, offsetY});
+                }
                 break;
+            }
+
         }
-        setSelectedElement(element);
-        dispatch(updateElementInStore(element));
-        emitElementUpdate({ ...element, roomId: user.roomId }); // Emit element update with room context
+        
+        //emitElementUpdate({ ...element, roomId: user.roomId }); // Emit element update with room context
     };
 
     const handleMouseUp = () => {
@@ -83,7 +110,7 @@ const Whiteboard = ({ user }) => {
         );
 
         if (selectedElementIndex !== -1) {
-            if (action === actions.DRAWING) {
+            if (action === actions.DRAWING || action === action.RESIZING) {
                 if (adjustmentRequired(elements[selectedElementIndex].type)) {
                     const { x1, y1, x2, y2 } = adjustElementCoordinates(
                         elements[selectedElementIndex]
@@ -104,6 +131,7 @@ const Whiteboard = ({ user }) => {
                 }
             }
         }
+            
 
         setAction(null);
         setSelectedElement(null);
@@ -128,6 +156,7 @@ const Whiteboard = ({ user }) => {
             const index = elements.findIndex((el) => el.id === selectedElement.id);
 
             if (index !== -1) {
+                
                 updateElement(
                     {
                         index,
@@ -143,7 +172,67 @@ const Whiteboard = ({ user }) => {
                 emitElementUpdate({ ...elements[index], roomId: user.roomId }); // Emit element update with room context
             }
         }
+        if (toolType === toolTypes.SELECTION){
+            const element = getElementAtPosition(clientX, clientY, elements);
+           
+            event.target.style.cursor = element ? getCursorForPosition(element.position) : "default";
+            
+        }
+        if(toolType === toolTypes.SELECTION && 
+            action === actions.MOVING && 
+            selectedElement){
+            const{id, x1, x2, y1, y2, type, offsetX, offsetY} = selectedElement;
+
+            const width = x2 - x1;
+            const height = y2 - y1;
+
+            const newX1 = clientX - offsetX;
+            const newY1 = clientY - offsetY;
+
+            const index = elements.findIndex((el)=>el.id === selectedElement.id);
+            if(index !== -1){
+                updateElement({
+                    id, 
+                    x1: newX1,
+                    y1: newY1,
+                    x2: newX1 + width,
+                    y2: newY1 + height,
+                    type,
+                    index,
+                },
+                elements
+                );
+            }
+
+        }
+        if(toolType === toolTypes.SELECTION && 
+            action === actions.RESIZING && 
+            selectedElement){
+                const{id, type, position, ...coordinates} = selectedElement;
+                const {x1, y1, x2, y2} = getResizedCoordinates(
+                    clientX,
+                    clientY,
+                    position,
+                    coordinates
+                );
+                const selectedElementIndex = elements.findIndex(
+                    (el)=>el.id === selectedElement.id);
+                if(selectedElementIndex !== -1){
+                    updateElement({
+                        x1,
+                        x2,
+                        y1,
+                        y2,
+                        type: selectedElement.type,
+                        id: selectedElement.id,
+                        index: selectedElementIndex,
+                    }, 
+                    elements
+                );
+            }
+         }
     };
+    
 
     const handleTextareaBlur = (event) => {
         const { id, x1, y1, type } = selectedElement;
