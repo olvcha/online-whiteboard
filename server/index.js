@@ -7,6 +7,7 @@ const {Server} = require("socket.io");
 const server = http.createServer(app);
 
 app.use(cors());
+app.use(express.json({ limit: '10mb' }));
 
 let rooms = {};
 
@@ -18,11 +19,11 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-    console.log('user connected');
+
 
     socket.on("join-room", (roomId) => {
         socket.join(roomId);
-
+        console.log('user connected ROOM =',roomId);
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 elements: []
@@ -50,6 +51,12 @@ io.on('connection', (socket) => {
 
         socket.on("disconnect", () => {
             socket.to(roomId).emit("user-disconnected", socket.id);
+        });
+
+        socket.on("image-upload", (imageData)=>{
+            rooms[roomId].elements.push(imageData);
+            io.to(roomId).emit('image-upload', imageData);
+            console.log('image upload');
         });
     });
 });

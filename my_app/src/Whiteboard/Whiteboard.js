@@ -15,18 +15,21 @@ import {
 
 } from "./utils";
 import { v4 as uuid } from "uuid";
-import { updateElement as updateElementInStore } from "./whiteboardSlice";
-import { emitCursorPosition, emitElementUpdate } from "../socketConn/socketConn";
+import { updateElement as updateElementInStore, setImage } from "./whiteboardSlice";
+import { emitCursorPosition, emitElementUpdate, emitImageUpload } from "../socketConn/socketConn";
 import PropTypes from 'prop-types';
 
 let emitCursor = true;
 let lastCursorPosition;
 
 const Whiteboard = ({ user }) => {
+    console.log('Whiteboard component rendered'); // Log to check if the component is rendered
+
     const canvasRef = useRef();
     const textAreaRef = useRef();
     const toolType = useSelector((state) => state.whiteboard.tool);
     const elements = useSelector((state) => state.whiteboard.elements);
+    const imageToInsert = useSelector((state) => state.whiteboard.image);
 
     const [action, setAction] = useState(null);
     const [selectedElement, setSelectedElement] = useState(null);
@@ -42,9 +45,44 @@ const Whiteboard = ({ user }) => {
         const roughCanvas = rough.canvas(canvas);
 
         elements.forEach((element) => {
+            console.log('Draw ',element.type);
             drawElement({ roughCanvas, context: ctx, element });
         });
     }, [elements]);
+
+  /*  const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                setImageToInsert(evt.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };*/
+    /*wklejanie zdjęcia
+    const handlePaste = (event)=>{
+        const items = event.clipboardData.items;
+        for(const item of items){
+            if(item.type.startsWith('image/')){
+                const blob = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = function(evt){
+                    const imageData={
+                        id:uuid(),
+                        type:'image',
+                        data: evt.target.result,
+                        x1: 100, // default position
+                        y1: 100,
+                    };
+                    dispatch(updateElementInStore(imageData));
+                    emitImageUpload({ ...imageData, roomId: user.roomId });
+                };
+                reader.readAsDataURL(blob);
+            }
+        }
+
+    }*/
 
     const handleMouseDown = (event) => {
         const { clientX, clientY } = event;
@@ -52,7 +90,7 @@ const Whiteboard = ({ user }) => {
         if (selectedElement && action === actions.WRITING) {
             return;
         }
-
+        console.log('Mouse down');
         switch (toolType) {
             case toolTypes.RECTANGLE:
             case toolTypes.LINE:
@@ -95,6 +133,23 @@ const Whiteboard = ({ user }) => {
                     const offsetY = clientY - element.y1;
 
                     setSelectedElement({...element, offsetX, offsetY});
+                }
+                break;
+                
+            }
+            case toolTypes.IMAGE: {
+                if (imageToInsert) {
+                    const element = {
+                        id: uuid(),
+                        type: toolTypes.IMAGE, // Ustaw typ na IMAGE
+                        data: imageToInsert,
+                        x1: clientX,
+                        y1: clientY,
+                    };
+                    dispatch(updateElementInStore(element));
+                    emitImageUpload({ ...element, roomId: user.roomId });
+                  //  setImageToInsert(null); // Reset image after placing it
+                    dispatch(setImage(null)); 
                 }
                 break;
             }
@@ -285,7 +340,9 @@ const Whiteboard = ({ user }) => {
                 width={window.innerWidth}
                 height={window.innerHeight}
                 id="canvas"
+                //onPaste={handlePaste}
             />
+            
         </>
     );
 };

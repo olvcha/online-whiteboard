@@ -34,6 +34,9 @@ export const connectWithSocketServer = () => {
     socket.on("user-disconnected", (disconnectedUserId) => {
         store.dispatch(removeCursorPosition(disconnectedUserId));
     });
+    socket.on("image-upload", (imageData) => {
+        store.dispatch(updateElement(imageData));
+    });
 
     return socket; // Return the socket instance
 };
@@ -52,4 +55,8 @@ export const emitClearWhiteboard = () => {
 
 export const emitCursorPosition = (cursorData) => {
     socket.emit("cursor-position", cursorData);
+};
+
+export const emitImageUpload = (imageData) => {
+    socket.emit("image-upload", imageData);
 };
