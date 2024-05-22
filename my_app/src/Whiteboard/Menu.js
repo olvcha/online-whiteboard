@@ -31,6 +31,7 @@ const IconButton = ({ src, type, isRubber }) => {
     }
 
 
+
     return (
         <button
             onClick={isRubber ? handleClearCanvas : handleToolChange}

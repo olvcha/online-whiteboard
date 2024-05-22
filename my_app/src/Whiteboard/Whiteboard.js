@@ -12,6 +12,21 @@ import {
     getElementAtPosition,
     getCursorForPosition,
     getResizedCoordinates,
+    updatePencilElementsWhenMoving,
+
+} from "./utils";
+import { v4 as uuid } from "uuid";
+import { updateElement as updateElementInStore, setImage } from "./whiteboardSlice";
+import { emitCursorPosition, emitElementUpdate, emitImageUpload } from "../socketConn/socketConn";
+import PropTypes, { elementType } from 'prop-types';
+
+let emitCursor = true;
+let lastCursorPosition;
+
+const Whiteboard = ({ user }) => {
+    console.log('Whiteboard component rendered'); // Log to check if the component is rendered
+
+
 
 } from "./utils";
 import { v4 as uuid } from "uuid";
@@ -23,6 +38,7 @@ let emitCursor = true;
 let lastCursorPosition;
 
 const Whiteboard = ({ user }) => {
+
     console.log('Whiteboard component rendered'); // Log to check if the component is rendered
 
     const canvasRef = useRef();
@@ -54,6 +70,40 @@ const Whiteboard = ({ user }) => {
         drawAllElements(); // Wywołanie funkcji pomocniczej
     
     }, [elements]); // Dodano asynchroniczne rysowanie elementów
+
+  /*  const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                setImageToInsert(evt.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };*/
+    /*wklejanie zdjęcia
+    const handlePaste = (event)=>{
+        const items = event.clipboardData.items;
+        for(const item of items){
+            if(item.type.startsWith('image/')){
+                const blob = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = function(evt){
+                    const imageData={
+                        id:uuid(),
+                        type:'image',
+                        data: evt.target.result,
+                        x1: 100, // default position
+                        y1: 100,
+                    };
+                    dispatch(updateElementInStore(imageData));
+                    emitImageUpload({ ...imageData, roomId: user.roomId });
+                };
+                reader.readAsDataURL(blob);
+            }
+        }
+
+    }*/
 
   /*  const handleImageUpload = (event) => {
         const file = event.target.files[0];
@@ -135,6 +185,7 @@ const Whiteboard = ({ user }) => {
                 if(element && element.type === toolTypes.RECTANGLE){
                     setAction(
                         element.position === cursorPositions.INSIDE ? actions.MOVING : actions.RESIZING);
+
 
                     const offsetX = clientX - element.x1;
                     const offsetY = clientY - element.y1;
@@ -235,7 +286,107 @@ const Whiteboard = ({ user }) => {
                     elements
                 );
                 emitElementUpdate({ ...elements[index], roomId: user.roomId }); // Emit element update with room context
+
             }
+        }
+        if (toolType === toolTypes.SELECTION){
+            const element = getElementAtPosition(clientX, clientY, elements);
+           
+            event.target.style.cursor = element ? getCursorForPosition(element.position) : "default";
+            
+        }
+
+        if (toolType === toolTypes.SELECTION && action === actions.MOVING && selectedElement.type === toolTypes.PENCIL)
+        {
+            const newPoints = selectedElement.points.map((_, index) => ({
+                x: clientX - selectedElement.xOffsets[index],
+                y: clientY - selectedElement.yOffsets[index],
+            }));
+
+            const index = elements.findIndex(el => el.id === selectedElement.id);
+            
+            if (index !== -1) {
+                updatePencilElementsWhenMoving({index, newPoints}, elements);
+            }
+            
+            return;
+        }
+
+        if(toolType === toolTypes.SELECTION && 
+            action === actions.MOVING && 
+            selectedElement){
+            const{id, x1, x2, y1, y2, type, offsetX, offsetY, /*text*/} = selectedElement;
+
+            const width = x2 - x1;
+            const height = y2 - y1;
+
+            const newX1 = clientX - offsetX;
+            const newY1 = clientY - offsetY;
+
+            const index = elements.findIndex((el)=>el.id === selectedElement.id);
+            if(index !== -1){
+                updateElement({
+                    id, 
+                    x1: newX1,
+                    y1: newY1,
+                    x2: newX1 + width,
+                    y2: newY1 + height,
+                    type,
+                    index,
+                    //text,
+                },
+                elements
+                );
+            }
+
+        }
+        if(toolType === toolTypes.SELECTION && 
+            action === actions.RESIZING && 
+            selectedElement){
+                const{id, type, position, ...coordinates} = selectedElement;
+                const {x1, y1, x2, y2} = getResizedCoordinates(
+                    clientX,
+                    clientY,
+                    position,
+                    coordinates
+                );
+                const selectedElementIndex = elements.findIndex(
+                    (el)=>el.id === selectedElement.id);
+                if(selectedElementIndex !== -1){
+                    updateElement({
+                        x1,
+                        x2,
+                        y1,
+                        y2,
+                        type: selectedElement.type,
+                        id: selectedElement.id,
+                        index: selectedElementIndex,
+                    }, 
+                    elements
+                );
+
+            }
+         }
+    };
+    
+
+    const handleTextareaBlur = (event) => {
+        const { id, x1, y1, type } = selectedElement;
+        const index = elements.findIndex((el) => el.id === selectedElement.id);
+        if (index !== -1) {
+            const updatedElement = {
+                id,
+                x1,
+                y1,
+                type,
+                text: event.target.value,
+                index,
+            };
+            updateElement(updatedElement, elements);
+            dispatch(updateElementInStore(updatedElement));
+            emitElementUpdate({ ...updatedElement, roomId: user.roomId }); // Emit element update with room context
+            setAction(null);
+            setSelectedElement(null);
         }
         if (toolType === toolTypes.SELECTION){
             const element = getElementAtPosition(clientX, clientY, elements);
@@ -354,6 +505,7 @@ const Whiteboard = ({ user }) => {
                 id="canvas"
                 //onPaste={handlePaste}
             />
+            
             
         </>
     );

@@ -37,6 +37,9 @@ export const connectWithSocketServer = () => {
     socket.on("image-upload", (imageData) => {
         store.dispatch(updateElement(imageData));
     });
+    socket.on("image-upload", (imageData) => {
+        store.dispatch(updateElement(imageData));
+    });
 
     return socket; // Return the socket instance
 };

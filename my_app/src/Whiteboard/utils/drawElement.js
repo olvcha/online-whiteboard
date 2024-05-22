@@ -61,6 +61,9 @@ const drawElementSync = ({ roughCanvas, context, element }) => {
     case toolTypes.TEXT:
       drawTextElement(context, element);
       break;
+    case toolTypes.IMAGE:
+      drawImageElement(context, element);
+      break;
     default:
       throw new Error("Something went wrong when drawing element");
   }
