@@ -4,6 +4,7 @@ const initialState = {
     tool: null,
     elements: [],
     roomId: null, // Track current room ID
+    image: null, 
 };
 
 const whiteboardSlice = createSlice({
@@ -30,9 +31,18 @@ const whiteboardSlice = createSlice({
         setRoomId: (state, action) => {
             state.roomId = action.payload;
         },
+        setImage: (state, action) => {
+            state.image = action.payload; // Ustawiamy dane obrazu
+        },
+    },
+});
+
+export const { setToolType, updateElement, setElements, setRoomId, setImage } = whiteboardSlice.actions;
+
     },
 });
 
 export const { setToolType, updateElement, setElements, setRoomId } = whiteboardSlice.actions;
+
 
 export default whiteboardSlice.reducer;
