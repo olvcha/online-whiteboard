@@ -19,6 +19,7 @@ const drawTextElement = (context, element) => {
   context.fillText(element.text,element.x1,element.y1);
 };
 
+
 const drawImageElement = (context, element) => {
   const img = new Image();
   img.src = element.data;
@@ -27,6 +28,7 @@ const drawImageElement = (context, element) => {
     context.drawImage(img, element.x1, element.y1);
   };
 };
+
 
 export const drawElement = ({ roughCanvas, context, element }) => {
   switch (element.type) {

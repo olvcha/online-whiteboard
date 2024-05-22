@@ -5,4 +5,6 @@ export const toolTypes = {
     TEXT: "TEXT",
     SELECTION: "SELECTION",
     IMAGE: "IMAGE",
+    SELECTION: "SELECTION",
+
 };

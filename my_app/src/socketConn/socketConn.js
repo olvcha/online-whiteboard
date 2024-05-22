@@ -57,6 +57,7 @@ export const emitCursorPosition = (cursorData) => {
     socket.emit("cursor-position", cursorData);
 };
 
+
 export const emitImageUpload = (imageData) => {
     socket.emit("image-upload", imageData);
 };

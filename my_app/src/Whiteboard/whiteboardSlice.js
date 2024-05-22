@@ -39,4 +39,10 @@ const whiteboardSlice = createSlice({
 
 export const { setToolType, updateElement, setElements, setRoomId, setImage } = whiteboardSlice.actions;
 
+    },
+});
+
+export const { setToolType, updateElement, setElements, setRoomId } = whiteboardSlice.actions;
+
+
 export default whiteboardSlice.reducer;

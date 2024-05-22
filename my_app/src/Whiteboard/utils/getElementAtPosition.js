@@ -1,5 +1,6 @@
 import { toolTypes, cursorPositions } from "../../constants";
 
+
 const distance = (a, b) => 
     Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 
@@ -30,6 +31,7 @@ const positionWithinElement = (x, y, element) =>{
             
             return topLeft || topRight || bottomLeft || bottomRight || inside;
 
+
         // case toolTypes.TEXT:
         //     return x >= x1 && x <= x2 && y >= y1 && y <= y2 ? cursorPositions.INSIDE : null;
 
@@ -51,6 +53,7 @@ const positionWithinElement = (x, y, element) =>{
             });
 
             return betweenAnyPoint ? cursorPositions.INSIDE : null;
+
     }
 };
 

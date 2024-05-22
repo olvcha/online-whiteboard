@@ -6,6 +6,7 @@ import rubberIcon from "../resources/icons/rubber.svg";
 import textIcon from "../resources/icons/text.svg";
 import selectionIcon from "../resources/icons/selection.svg";
 import imgIcon from "../resources/icons/img.svg";
+
 import { toolTypes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { setElements, setToolType, setImage } from "./whiteboardSlice";

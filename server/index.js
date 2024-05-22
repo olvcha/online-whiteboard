@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 app.use(cors());
 
-let elements = [];
+let rooms = {};
 
 const io = new Server(server, {
     cors:{
@@ -17,37 +17,58 @@ const io = new Server(server, {
     },
 });
 
-io.on('connection', (socket)=>{
-    console.log('user connected')
-    io.to(socket.id).emit("whiteboard-state", elements);
+io.on('connection', (socket) => {
+    console.log('user connected');
 
-    socket.on("element-update", (elementData)=>{
-        updateElementIntElements(elementData)
-    
-        socket.broadcast.emit('element-update', elementData);
+    socket.on("join-room", (roomId) => {
+        socket.join(roomId);
+
+        if (!rooms[roomId]) {
+            rooms[roomId] = {
+                elements: []
+            };
+        }
+
+        io.to(socket.id).emit("whiteboard-state", rooms[roomId].elements);
+
+        socket.on("element-update", (elementData) => {
+            updateElementInRoom(roomId, elementData);
+            socket.to(roomId).emit('element-update', elementData);
+        });
+
+        socket.on("whiteboard-clear", () => {
+            rooms[roomId].elements = [];
+            socket.to(roomId).emit("whiteboard-clear");
+        });
+
+        socket.on('cursor-position', (cursorData) => {
+            socket.to(roomId).emit('cursor-position', {
+                ...cursorData,
+                userId: socket.id,
+            });
+        });
+
+        socket.on("disconnect", () => {
+            socket.to(roomId).emit("user-disconnected", socket.id);
+        });
     });
-
-    socket.on("whiteboard-clear", () => {
-        elements = [];
-        
-        socket.broadcast.emit("whiteboard-clear");
-    })
 });
 
-app.get('/',(req, res) =>{
+app.get('/', (req, res) => {
     res.send("Server is working");
 });
 
 const PORT = process.env.PORT || 3003;
 
-server.listen(PORT, () =>{
+server.listen(PORT, () => {
     console.log("server is running on port", PORT);
 });
 
-const updateElementIntElements =(elementData) =>{
-    const index = elements.findIndex(element => element.id === elementData.id)
+const updateElementInRoom = (roomId, elementData) => {
+    const room = rooms[roomId];
+    const index = room.elements.findIndex(element => element.id === elementData.id);
 
-    if (index === -1) return elements.push(elementData)
+    if (index === -1) return room.elements.push(elementData);
 
-    elements[index] = elementData;
-}
+    room.elements[index] = elementData;
+};
