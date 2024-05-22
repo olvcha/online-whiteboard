@@ -170,7 +170,10 @@ const Whiteboard = ({ user }) => {
             case toolTypes.SELECTION:{
                 const element = getElementAtPosition(clientX, clientY, elements)
 
-                if(element && element.type === toolTypes.RECTANGLE){
+                if(element && (element.type === toolTypes.RECTANGLE 
+                    || element.type === toolTypes.LINE
+                    )
+                    ){
                     setAction(
                         element.position === cursorPositions.INSIDE ? actions.MOVING : actions.RESIZING);
 
@@ -180,6 +183,16 @@ const Whiteboard = ({ user }) => {
 
                     setSelectedElement({...element, offsetX, offsetY});
                 }
+
+                if(element && element.type === toolTypes.PENCIL){
+                    setAction(actions.MOVING);
+                    
+                    const xOffsets = element.points.map(point => clientX - point.x);
+                    const yOffsets = element.points.map(point => clientY - point.y);
+
+                    setSelectedElement({...element, xOffsets, yOffsets});
+                }
+
                 break;
                 
             }
