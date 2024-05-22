@@ -23,11 +23,11 @@ body {
   border-radius: 8px;
   border: none;
   transition: 0.3s;
-  background: #FFF1DC;
+  background: #8690ea;
 }
 
 .menu_button:hover {
-  background: #E8D5C4;
+  background: #da9cec;
 }
 
 .menu_button_active {
@@ -37,3 +37,11 @@ body {
   border: none;
   background: #E8D5C4;
 }
+
+.cursor {
+  transition: 0.1s;
+}
+
+
+
+

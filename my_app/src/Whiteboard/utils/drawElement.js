@@ -13,6 +13,21 @@ const drawPencilElement = (context, element) => {
   context.fill(myPath);
 };
 
+const drawTextElement = (context, element) => {
+  context.textBaseline = "top";
+  context.font = "24px sans-serif"
+  context.fillText(element.text,element.x1,element.y1);
+};
+
+const drawImageElement = (context, element) => {
+  const img = new Image();
+  img.src = element.data;
+  console.log("Draw element x", element.x1, " Y ", element.y1);
+  img.onload = () => {
+    context.drawImage(img, element.x1, element.y1);
+  };
+};
+
 export const drawElement = ({ roughCanvas, context, element }) => {
   switch (element.type) {
     case toolTypes.RECTANGLE:
@@ -21,6 +36,12 @@ export const drawElement = ({ roughCanvas, context, element }) => {
       return roughCanvas.draw(element.roughElement);
     case toolTypes.PENCIL:
       drawPencilElement(context, element);
+      break;
+    case toolTypes.TEXT:
+      drawTextElement(context, element);
+      break;
+    case toolTypes.IMAGE:
+      drawImageElement(context, element);
       break;
     default:
       throw new Error("Something went wrong when drawing element");
