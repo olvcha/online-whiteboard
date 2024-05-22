@@ -23,19 +23,7 @@ import PropTypes, { elementType } from 'prop-types';
 let emitCursor = true;
 let lastCursorPosition;
 
-const Whiteboard = ({ user }) => {
-    console.log('Whiteboard component rendered'); // Log to check if the component is rendered
 
-
-
-} from "./utils";
-import { v4 as uuid } from "uuid";
-import { updateElement as updateElementInStore, setImage } from "./whiteboardSlice";
-import { emitCursorPosition, emitElementUpdate, emitImageUpload } from "../socketConn/socketConn";
-import PropTypes from 'prop-types';
-
-let emitCursor = true;
-let lastCursorPosition;
 
 const Whiteboard = ({ user }) => {
 
@@ -369,7 +357,7 @@ const Whiteboard = ({ user }) => {
          }
     };
     
-
+/*
     const handleTextareaBlur = (event) => {
         const { id, x1, y1, type } = selectedElement;
         const index = elements.findIndex((el) => el.id === selectedElement.id);
@@ -448,7 +436,7 @@ const Whiteboard = ({ user }) => {
             }
          }
     };
-    
+    */
 
     const handleTextareaBlur = (event) => {
         const { id, x1, y1, type } = selectedElement;
