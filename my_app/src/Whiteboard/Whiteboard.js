@@ -44,25 +44,16 @@ const Whiteboard = ({ user }) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     
         const roughCanvas = rough.canvas(canvas);
+
+        const drawAllElements = async () => {
+            for (const element of elements) {
+                await drawElement({ roughCanvas, context: ctx, element }); // Użycie await dla każdego elementu
+            }
+        };
+
+        drawAllElements(); // Wywołanie funkcji pomocniczej
     
-        // Sort elements to ensure IMAGE types are drawn first
-        const sortedElements = [...elements].sort((a, b) => {
-            if (a.type === toolTypes.IMAGE && b.type !== toolTypes.IMAGE) {
-                return -1;
-            }
-            if (a.type !== toolTypes.IMAGE && b.type === toolTypes.IMAGE) {
-                return 1;
-            }
-            return 0;
-        });
-    
-        sortedElements.forEach((element) => {
-            if (element.type === toolTypes.IMAGE) {
-              //  alert('IMAGE ', element.type)
-            }
-            drawElement({ roughCanvas, context: ctx, element });
-        });
-    }, [elements]);
+    }, [elements]); // Dodano asynchroniczne rysowanie elementów
 
   /*  const handleImageUpload = (event) => {
         const file = event.target.files[0];
