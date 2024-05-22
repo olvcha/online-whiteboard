@@ -1,13 +1,17 @@
-
-import {io} from "socket.io-client"
-import {store} from "../store/store"
+import { io } from "socket.io-client";
+import {
+    updateCursorPosition,
+    removeCursorPosition,
+} from "../CursorOverlay/cursorSlice";
+import { store } from "../store/store";
 import { setElements, updateElement } from "../Whiteboard/whiteboardSlice";
+
 let socket;
 
-export const connectWithSocketServer = () =>{
+export const connectWithSocketServer = () => {
     socket = io("http://localhost:3003");
 
-    socket.on("console", () =>{
+    socket.on("connect", () => {
         console.log("connected to socket.io server");
     });
 
@@ -21,14 +25,38 @@ export const connectWithSocketServer = () =>{
 
     socket.on("whiteboard-clear", () => {
         store.dispatch(setElements([]));
-    })
+    });
+
+    socket.on("cursor-position", (cursorData) => {
+        store.dispatch(updateCursorPosition(cursorData));
+    });
+
+    socket.on("user-disconnected", (disconnectedUserId) => {
+        store.dispatch(removeCursorPosition(disconnectedUserId));
+    });
+    socket.on("image-upload", (imageData) => {
+        store.dispatch(updateElement(imageData));
+    });
+
+    return socket; // Return the socket instance
+};
+
+export const joinRoom = (roomId) => {
+    socket.emit('join-room', roomId);
 };
 
 export const emitElementUpdate = (elementData) => {
     socket.emit("element-update", elementData);
-
 };
 
 export const emitClearWhiteboard = () => {
     socket.emit("whiteboard-clear");
+};
+
+export const emitCursorPosition = (cursorData) => {
+    socket.emit("cursor-position", cursorData);
+};
+
+export const emitImageUpload = (imageData) => {
+    socket.emit("image-upload", imageData);
 };

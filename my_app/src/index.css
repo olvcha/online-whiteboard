@@ -20,14 +20,17 @@ body {
 .menu_button {
   width: 40px;
   height: 40px;
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
   border-radius: 8px;
   border: none;
   transition: 0.3s;
-  background: #FFF1DC;
+  background: #8690ea;
 }
 
 .menu_button:hover {
-  background: #E8D5C4;
+  background: #da9cec;
 }
 
 .menu_button_active {
@@ -37,3 +40,35 @@ body {
   border: none;
   background: #E8D5C4;
 }
+
+.cursor {
+  transition: 0.1s;
+}
+
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  position: absolute;
+  top: 70px; /* Adjust based on the menu position */
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensure the color picker is on top */
+}
+
+.color-picker-item {
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  transition: 0.3s;
+}
+
+.color-picker-item:hover {
+  border: 1px solid #bbb;
+}
+
