@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import './JoinCreateRoom.css';
@@ -8,6 +8,16 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
     const [name, setName] = useState("");
     const [joinName, setJoinName] = useState("");
     const [joinRoomId, setJoinRoomId] = useState("");
+
+    useEffect(() => {
+        // Add the class to the body element
+        document.body.classList.add('join-create-room-background');
+
+        // Remove the class when the component unmounts
+        return () => {
+            document.body.classList.remove('join-create-room-background');
+        };
+    }, []);
 
     const handleCreateSubmit = (e) => {
         e.preventDefault();
@@ -35,7 +45,7 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
 
     return (
         <div className="container">
-            <ToastContainer /> {}
+            <ToastContainer />
             <div className="row">
                 <div className="column-full">
                     <h1 className="text-center margin-y-large">Welcome To Collaborative Whiteboard Tool!</h1>

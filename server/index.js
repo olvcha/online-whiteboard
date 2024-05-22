@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const cors = require('cors');
-const {Server} = require("socket.io");
+const { Server } = require("socket.io");
 
 const server = http.createServer(app);
 
@@ -12,25 +12,26 @@ app.use(express.json({ limit: '10mb' }));
 let rooms = {};
 
 const io = new Server(server, {
-    cors:{
+    cors: {
         origin: '*',
         methods: ["GET", "POST"],
     },
 });
 
 io.on('connection', (socket) => {
-
-
     socket.on("join-room", (roomId) => {
         socket.join(roomId);
-        console.log('user connected ROOM =',roomId);
+        console.log('user connected ROOM =', roomId);
         if (!rooms[roomId]) {
             rooms[roomId] = {
-                elements: []
+                elements: [],
+                canvasSize: { width: 800, height: 600 } // Default canvas size
             };
         }
 
+        // Send the current state of the whiteboard and canvas size to the new user
         io.to(socket.id).emit("whiteboard-state", rooms[roomId].elements);
+        io.to(socket.id).emit("canvas-resize", rooms[roomId].canvasSize);
 
         socket.on("element-update", (elementData) => {
             updateElementInRoom(roomId, elementData);
@@ -53,10 +54,16 @@ io.on('connection', (socket) => {
             socket.to(roomId).emit("user-disconnected", socket.id);
         });
 
-        socket.on("image-upload", (imageData)=>{
+        socket.on("image-upload", (imageData) => {
             rooms[roomId].elements.push(imageData);
             io.to(roomId).emit('image-upload', imageData);
             console.log('image upload');
+        });
+
+        // Handle canvas resize event
+        socket.on("canvas-resize", (canvasSize) => {
+            rooms[roomId].canvasSize = canvasSize;
+            socket.to(roomId).emit("canvas-resize", canvasSize);
         });
     });
 });

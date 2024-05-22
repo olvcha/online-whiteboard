@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect, useState } from "react";
+import React, { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Menu from "./Menu";
 import rough from "roughjs/bundled/rough.esm";
@@ -12,102 +12,86 @@ import {
     getElementAtPosition,
     getCursorForPosition,
     getResizedCoordinates,
-
 } from "./utils";
 import { v4 as uuid } from "uuid";
-import { updateElement as updateElementInStore, setImage } from "./whiteboardSlice";
-import { emitCursorPosition, emitElementUpdate, emitImageUpload } from "../socketConn/socketConn";
+import { updateElement as updateElementInStore, setImage, updateCanvasSize } from "./whiteboardSlice";
+import { emitCursorPosition, emitElementUpdate, emitImageUpload, emitCanvasResize } from "../socketConn/socketConn";
 import PropTypes from 'prop-types';
 
 let emitCursor = true;
 let lastCursorPosition;
 
 const Whiteboard = ({ user }) => {
-    console.log('Whiteboard component rendered'); // Log to check if the component is rendered
-
     const canvasRef = useRef();
     const textAreaRef = useRef();
     const toolType = useSelector((state) => state.whiteboard.tool);
     const elements = useSelector((state) => state.whiteboard.elements);
     const imageToInsert = useSelector((state) => state.whiteboard.image);
     const selectedColor = useSelector((state) => state.whiteboard.color);
-    
+    const canvasSize = useSelector((state) => state.whiteboard.canvasSize);
+
     const [action, setAction] = useState(null);
     const [selectedElement, setSelectedElement] = useState(null);
 
     const dispatch = useDispatch();
 
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const width = canvas.width || 800;  // Default width
+        const height = canvas.height || 600;  // Default height
+        dispatch(updateCanvasSize({ width, height }));
+    }, [dispatch]);
+
     useLayoutEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-    
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
         const roughCanvas = rough.canvas(canvas);
 
         const drawAllElements = async () => {
             for (const element of elements) {
-                await drawElement({ roughCanvas, context: ctx, element }); // Użycie await dla każdego elementu
+                await drawElement({ roughCanvas, context: ctx, element });
             }
         };
 
-        drawAllElements(); // Wywołanie funkcji pomocniczej
-    
-    }, [elements]); // Dodano asynchroniczne rysowanie elementów
+        drawAllElements();
 
-  /*  const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (evt) {
-                setImageToInsert(evt.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };*/
-    /*wklejanie zdjęcia
-    const handlePaste = (event)=>{
-        const items = event.clipboardData.items;
-        for(const item of items){
-            if(item.type.startsWith('image/')){
-                const blob = item.getAsFile();
-                const reader = new FileReader();
-                reader.onload = function(evt){
-                    const imageData={
-                        id:uuid(),
-                        type:'image',
-                        data: evt.target.result,
-                        x1: 100, // default position
-                        y1: 100,
-                    };
-                    dispatch(updateElementInStore(imageData));
-                    emitImageUpload({ ...imageData, roomId: user.roomId });
-                };
-                reader.readAsDataURL(blob);
-            }
-        }
+    }, [elements, canvasSize]);
 
-    }*/
+    const handleResize = (width, height) => {
+        const newSize = { width, height };
+        dispatch(updateCanvasSize(newSize));
+        emitCanvasResize(newSize);
+    };
+
+    const adjustForScroll = (clientX, clientY) => {
+        const canvas = canvasRef.current;
+        const { left, top } = canvas.getBoundingClientRect();
+        return { x: clientX - left, y: clientY - top };
+    };
 
     const handleMouseDown = (event) => {
         const { clientX, clientY } = event;
+        const { x, y } = adjustForScroll(clientX, clientY);
 
         if (selectedElement && action === actions.WRITING) {
             return;
         }
-        console.log('Mouse down');
+
         switch (toolType) {
             case toolTypes.RECTANGLE:
             case toolTypes.LINE:
             case toolTypes.PENCIL: {
                 const element = createElement({
-                    x1: clientX,
-                    y1: clientY,
-                    x2: clientX,
-                    y2: clientY,
+                    x1: x,
+                    y1: y,
+                    x2: x,
+                    y2: y,
                     toolType,
                     id: uuid(),
-                    color: selectedColor, 
+                    color: selectedColor,
                 });
                 setAction(actions.DRAWING);
                 setSelectedElement(element);
@@ -116,55 +100,54 @@ const Whiteboard = ({ user }) => {
             }
             case toolTypes.TEXT: {
                 const element = createElement({
-                    x1: clientX,
-                    y1: clientY,
-                    x2: clientX,
-                    y2: clientY,
+                    x1: x,
+                    y1: y,
+                    x2: x,
+                    y2: y,
                     toolType,
                     id: uuid(),
-                    color: selectedColor, 
+                    color: selectedColor,
                 });
                 setAction(actions.WRITING);
                 setSelectedElement(element);
                 dispatch(updateElementInStore(element));
                 break;
             }
-            case toolTypes.SELECTION:{
-                const element = getElementAtPosition(clientX, clientY, elements)
+            case toolTypes.SELECTION: {
+                const element = getElementAtPosition(x, y, elements);
 
-                if(element && element.type === toolTypes.RECTANGLE){
+                if (element) {
                     setAction(
-                        element.position === cursorPositions.INSIDE ? actions.MOVING : actions.RESIZING);
+                        element.position === cursorPositions.INSIDE ? actions.MOVING : actions.RESIZING
+                    );
 
-                    const offsetX = clientX - element.x1;
-                    const offsetY = clientY - element.y1;
+                    const offsetX = x - element.x1;
+                    const offsetY = y - element.y1;
 
-                    setSelectedElement({...element, offsetX, offsetY});
+                    setSelectedElement({ ...element, offsetX, offsetY });
                 }
                 break;
-                
             }
             case toolTypes.IMAGE: {
                 if (imageToInsert) {
                     const element = {
                         id: uuid(),
-                        type: toolTypes.IMAGE, // Ustaw typ na IMAGE
+                        type: toolTypes.IMAGE,
                         data: imageToInsert,
-                        x1: clientX,
-                        y1: clientY,
-        
+                        x1: x,
+                        y1: y,
+                        x2: x + 100, // Add default width for the image
+                        y2: y + 100, // Add default height for the image
                     };
                     dispatch(updateElementInStore(element));
                     emitImageUpload({ ...element, roomId: user.roomId });
-                  //  setImageToInsert(null); // Reset image after placing it
-                    dispatch(setImage(null)); 
+                    dispatch(setImage(null));
                 }
                 break;
             }
-
+            default:
+                break;
         }
-        
-        //emitElementUpdate({ ...element, roomId: user.roomId }); // Emit element update with room context
     };
 
     const handleMouseUp = () => {
@@ -173,7 +156,7 @@ const Whiteboard = ({ user }) => {
         );
 
         if (selectedElementIndex !== -1) {
-            if (action === actions.DRAWING || action === action.RESIZING) {
+            if (action === actions.DRAWING || action === actions.RESIZING) {
                 if (adjustmentRequired(elements[selectedElementIndex].type)) {
                     const { x1, y1, x2, y2 } = adjustElementCoordinates(
                         elements[selectedElementIndex]
@@ -195,7 +178,6 @@ const Whiteboard = ({ user }) => {
                 }
             }
         }
-            
 
         setAction(null);
         setSelectedElement(null);
@@ -203,11 +185,12 @@ const Whiteboard = ({ user }) => {
 
     const handleMouseMove = (event) => {
         const { clientX, clientY } = event;
+        const { x, y } = adjustForScroll(clientX, clientY);
 
-        lastCursorPosition = { x: clientX, y: clientY };
+        lastCursorPosition = { x, y };
 
         if (emitCursor) {
-            emitCursorPosition({ x: clientX, y: clientY, userId: user.userId, userName: user.userName, roomId: user.roomId }); // Emit cursor position with user context
+            emitCursorPosition({ x, y, userId: user.userId, userName: user.userName, roomId: user.roomId });
             emitCursor = false;
 
             setTimeout(() => {
@@ -220,70 +203,67 @@ const Whiteboard = ({ user }) => {
             const index = elements.findIndex((el) => el.id === selectedElement.id);
 
             if (index !== -1) {
-                
                 updateElement(
                     {
                         index,
                         id: elements[index].id,
                         x1: elements[index].x1,
                         y1: elements[index].y1,
-                        x2: clientX,
-                        y2: clientY,
+                        x2: x,
+                        y2: y,
                         type: elements[index].type,
                         color: elements[index].color,
                     },
                     elements
                 );
-                emitElementUpdate({ ...elements[index], roomId: user.roomId }); // Emit element update with room context
+                emitElementUpdate({ ...elements[index], roomId: user.roomId });
             }
         }
-        if (toolType === toolTypes.SELECTION){
-            const element = getElementAtPosition(clientX, clientY, elements);
-           
+        if (toolType === toolTypes.SELECTION) {
+            const element = getElementAtPosition(x, y, elements);
+
             event.target.style.cursor = element ? getCursorForPosition(element.position) : "default";
-            
         }
-        if(toolType === toolTypes.SELECTION && 
-            action === actions.MOVING && 
-            selectedElement){
-            const{id, x1, x2, y1, y2, type, offsetX, offsetY} = selectedElement;
+        if (toolType === toolTypes.SELECTION &&
+            action === actions.MOVING &&
+            selectedElement) {
+            const { id, x1, x2, y1, y2, type, offsetX, offsetY } = selectedElement;
 
             const width = x2 - x1;
             const height = y2 - y1;
 
-            const newX1 = clientX - offsetX;
-            const newY1 = clientY - offsetY;
+            const newX1 = x - offsetX;
+            const newY1 = y - offsetY;
 
-            const index = elements.findIndex((el)=>el.id === selectedElement.id);
-            if(index !== -1){
+            const index = elements.findIndex((el) => el.id === selectedElement.id);
+            if (index !== -1) {
                 updateElement({
-                    id, 
-                    x1: newX1,
-                    y1: newY1,
-                    x2: newX1 + width,
-                    y2: newY1 + height,
-                    type,
-                    index,
-                },
-                elements
+                        id,
+                        x1: newX1,
+                        y1: newY1,
+                        x2: newX1 + width,
+                        y2: newY1 + height,
+                        type,
+                        index,
+                    },
+                    elements
                 );
             }
-
         }
-        if(toolType === toolTypes.SELECTION && 
-            action === actions.RESIZING && 
-            selectedElement){
-                const{id, type, position, ...coordinates} = selectedElement;
-                const {x1, y1, x2, y2} = getResizedCoordinates(
-                    clientX,
-                    clientY,
-                    position,
-                    coordinates
-                );
-                const selectedElementIndex = elements.findIndex(
-                    (el)=>el.id === selectedElement.id);
-                if(selectedElementIndex !== -1){
-                    updateElement({
+        if (toolType === toolTypes.SELECTION &&
+            action === actions.RESIZING &&
+            selectedElement) {
+            const { id, type, position, ...coordinates } = selectedElement;
+            const { x1, y1, x2, y2 } = getResizedCoordinates(
+                x,
+                y,
+                position,
+                coordinates
+            );
+            const selectedElementIndex = elements.findIndex(
+                (el) => el.id === selectedElement.id);
+            if (selectedElementIndex !== -1) {
+                updateElement({
                         x1,
                         x2,
                         y1,
@@ -291,13 +271,12 @@ const Whiteboard = ({ user }) => {
                         type: selectedElement.type,
                         id: selectedElement.id,
                         index: selectedElementIndex,
-                    }, 
+                    },
                     elements
                 );
             }
-         }
+        }
     };
-    
 
     const handleTextareaBlur = (event) => {
         const { id, x1, y1, type } = selectedElement;
@@ -310,11 +289,11 @@ const Whiteboard = ({ user }) => {
                 type,
                 text: event.target.value,
                 index,
-                color: selectedColor, 
+                color: selectedColor,
             };
             updateElement(updatedElement, elements);
             dispatch(updateElementInStore(updatedElement));
-            emitElementUpdate({ ...updatedElement, roomId: user.roomId }); // Emit element update with room context
+            emitElementUpdate({ ...updatedElement, roomId: user.roomId });
             setAction(null);
             setSelectedElement(null);
         }
@@ -322,7 +301,7 @@ const Whiteboard = ({ user }) => {
 
     return (
         <>
-            <Menu />
+            <Menu onResize={handleResize} initialCanvasSize={canvasSize} />
             {action === actions.WRITING ? (
                 <textarea
                     ref={textAreaRef}
@@ -345,16 +324,15 @@ const Whiteboard = ({ user }) => {
                 />
             ) : null}
             <canvas
+                ref={canvasRef}
+                width={canvasSize.width}
+                height={canvasSize.height}
+                id="canvas"
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
                 onMouseMove={handleMouseMove}
-                ref={canvasRef}
-                width={window.innerWidth}
-                height={window.innerHeight}
-                id="canvas"
-                //onPaste={handlePaste}
+                style={{ border: '1px solid #000', background: '#fff' }}
             />
-            
         </>
     );
 };

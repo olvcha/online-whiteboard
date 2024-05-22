@@ -4,8 +4,9 @@ const initialState = {
     tool: null,
     elements: [],
     roomId: null, // Track current room ID
-    image: null, 
+    image: null,
     color: "#000000",
+    canvasSize: { width: window.innerWidth, height: window.innerHeight }, // Default canvas size
 };
 
 const whiteboardSlice = createSlice({
@@ -33,14 +34,17 @@ const whiteboardSlice = createSlice({
             state.roomId = action.payload;
         },
         setImage: (state, action) => {
-            state.image = action.payload; // Ustawiamy dane obrazu
+            state.image = action.payload; // Set image data
         },
         setColor: (state, action) => {
-            state.color = action.payload; 
+            state.color = action.payload;
+        },
+        updateCanvasSize: (state, action) => {
+            state.canvasSize = action.payload; // Update canvas size
         },
     },
 });
 
-export const { setToolType, updateElement, setElements, setRoomId, setImage,  setColor } = whiteboardSlice.actions;
+export const { setToolType, updateElement, setElements, setRoomId, setImage, setColor, updateCanvasSize } = whiteboardSlice.actions;
 
 export default whiteboardSlice.reducer;

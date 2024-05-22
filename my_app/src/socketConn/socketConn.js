@@ -4,7 +4,7 @@ import {
     removeCursorPosition,
 } from "../CursorOverlay/cursorSlice";
 import { store } from "../store/store";
-import { setElements, updateElement } from "../Whiteboard/whiteboardSlice";
+import { setElements, updateElement, updateCanvasSize } from "../Whiteboard/whiteboardSlice";
 
 let socket;
 
@@ -34,8 +34,14 @@ export const connectWithSocketServer = () => {
     socket.on("user-disconnected", (disconnectedUserId) => {
         store.dispatch(removeCursorPosition(disconnectedUserId));
     });
+
     socket.on("image-upload", (imageData) => {
         store.dispatch(updateElement(imageData));
+    });
+
+    socket.on("canvas-resize", (canvasSize) => {
+        // Dispatch an action to update the canvas size in the Redux store
+        store.dispatch(updateCanvasSize(canvasSize));
     });
 
     return socket; // Return the socket instance
@@ -59,4 +65,9 @@ export const emitCursorPosition = (cursorData) => {
 
 export const emitImageUpload = (imageData) => {
     socket.emit("image-upload", imageData);
+};
+
+// New function to emit canvas resize events
+export const emitCanvasResize = (canvasSize) => {
+    socket.emit("canvas-resize", canvasSize);
 };
