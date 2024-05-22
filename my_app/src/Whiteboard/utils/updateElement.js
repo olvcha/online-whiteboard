@@ -5,7 +5,7 @@ import { setElements } from "../whiteboardSlice";
 import { emitElementUpdate } from "../../socketConn/socketConn";
 
 export const updateElement = (
-  { id, x1, x2, y1, y2, type, index, text },
+  { id, x1, x2, y1, y2, type, index, text, color },
   elements
 ) => {
   const elementsCopy = [...elements];
@@ -20,6 +20,7 @@ export const updateElement = (
         x2,
         y2,
         toolType: type,
+        color,
       });
 
       elementsCopy[index] = updatedElement;

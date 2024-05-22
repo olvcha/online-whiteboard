@@ -40,13 +40,26 @@ const Whiteboard = ({ user }) => {
     useLayoutEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-
+    
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    
         const roughCanvas = rough.canvas(canvas);
-
-        elements.forEach((element) => {
-            console.log('Draw ',element.type);
+    
+        // Sort elements to ensure IMAGE types are drawn first
+        const sortedElements = [...elements].sort((a, b) => {
+            if (a.type === toolTypes.IMAGE && b.type !== toolTypes.IMAGE) {
+                return -1;
+            }
+            if (a.type !== toolTypes.IMAGE && b.type === toolTypes.IMAGE) {
+                return 1;
+            }
+            return 0;
+        });
+    
+        sortedElements.forEach((element) => {
+            if (element.type === toolTypes.IMAGE) {
+              //  alert('IMAGE ', element.type)
+            }
             drawElement({ roughCanvas, context: ctx, element });
         });
     }, [elements]);
@@ -184,6 +197,7 @@ const Whiteboard = ({ user }) => {
                             y1,
                             y2,
                             type: elements[selectedElementIndex].type,
+                            color: elements[selectedElementIndex].color,
                         },
                         elements
                     );
@@ -225,6 +239,7 @@ const Whiteboard = ({ user }) => {
                         x2: clientX,
                         y2: clientY,
                         type: elements[index].type,
+                        color: elements[index].color,
                     },
                     elements
                 );
