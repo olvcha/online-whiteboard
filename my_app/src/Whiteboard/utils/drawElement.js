@@ -10,12 +10,14 @@ const drawPencilElement = (context, element) => {
   const pathData = getSvgPathFromStroke(myStroke);
 
   const myPath = new Path2D(pathData);
+  context.fillStyle = element.color;
   context.fill(myPath);
 };
 
 const drawTextElement = (context, element) => {
   context.textBaseline = "top";
-  context.font = "24px sans-serif"
+  context.font = "24px sans-serif";
+  context.fillStyle = element.color;
   context.fillText(element.text,element.x1,element.y1);
 };
 
@@ -31,8 +33,13 @@ const drawImageElement = (context, element) => {
 export const drawElement = ({ roughCanvas, context, element }) => {
   switch (element.type) {
     case toolTypes.RECTANGLE:
+      context.strokeStyle = element.color;
+      context.fillStyle = element.color;
+      roughCanvas.color=element.color;
       return roughCanvas.draw(element.roughElement);
     case toolTypes.LINE:
+      context.strokeStyle = element.color;
+      context.fillStyle = element.color;
       return roughCanvas.draw(element.roughElement);
     case toolTypes.PENCIL:
       drawPencilElement(context, element);

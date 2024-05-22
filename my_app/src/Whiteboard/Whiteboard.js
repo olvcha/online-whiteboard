@@ -30,7 +30,8 @@ const Whiteboard = ({ user }) => {
     const toolType = useSelector((state) => state.whiteboard.tool);
     const elements = useSelector((state) => state.whiteboard.elements);
     const imageToInsert = useSelector((state) => state.whiteboard.image);
-
+    const selectedColor = useSelector((state) => state.whiteboard.color);
+    
     const [action, setAction] = useState(null);
     const [selectedElement, setSelectedElement] = useState(null);
 
@@ -102,6 +103,7 @@ const Whiteboard = ({ user }) => {
                     y2: clientY,
                     toolType,
                     id: uuid(),
+                    color: selectedColor, 
                 });
                 setAction(actions.DRAWING);
                 setSelectedElement(element);
@@ -116,6 +118,7 @@ const Whiteboard = ({ user }) => {
                     y2: clientY,
                     toolType,
                     id: uuid(),
+                    color: selectedColor, 
                 });
                 setAction(actions.WRITING);
                 setSelectedElement(element);
@@ -145,6 +148,7 @@ const Whiteboard = ({ user }) => {
                         data: imageToInsert,
                         x1: clientX,
                         y1: clientY,
+        
                     };
                     dispatch(updateElementInStore(element));
                     emitImageUpload({ ...element, roomId: user.roomId });
@@ -300,6 +304,7 @@ const Whiteboard = ({ user }) => {
                 type,
                 text: event.target.value,
                 index,
+                color: selectedColor, 
             };
             updateElement(updatedElement, elements);
             dispatch(updateElementInStore(updatedElement));
@@ -329,6 +334,7 @@ const Whiteboard = ({ user }) => {
                         overflow: 'hidden',
                         whiteSpace: 'pre',
                         background: 'transparent',
+                        color: selectedElement.color,
                     }}
                 />
             ) : null}

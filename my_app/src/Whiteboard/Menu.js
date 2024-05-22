@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import rectangleIcon from "../resources/icons/rectangle.svg";
 import lineIcon from "../resources/icons/line.svg";
 import pencilIcon from "../resources/icons/pencil.svg";
@@ -6,10 +6,14 @@ import rubberIcon from "../resources/icons/rubber.svg";
 import textIcon from "../resources/icons/text.svg";
 import selectionIcon from "../resources/icons/selection.svg";
 import imgIcon from "../resources/icons/img.svg";
+import colorIcon from "../resources/icons/color.svg";
+import ColorPicker from "./ColorPicker";
 import { toolTypes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
-import { setElements, setToolType, setImage } from "./whiteboardSlice";
+import { setElements, setToolType, setImage} from "./whiteboardSlice";
 import { emitClearWhiteboard } from "../socketConn/socketConn";
+
+ 
 
 const IconButton = ({ src, type, isRubber }) => {
     const dispatch = useDispatch();
@@ -39,8 +43,10 @@ const IconButton = ({ src, type, isRubber }) => {
     );
 };
 
+
 const Menu = () => {
     const dispatch = useDispatch();
+    const [showColorPicker, setShowColorPicker] = useState(false);
 
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
@@ -62,14 +68,22 @@ const Menu = () => {
             <IconButton src={textIcon} type={toolTypes.TEXT} />
             <IconButton src={selectionIcon} type={toolTypes.SELECTION} />
             <label className="menu_button">
-                <img width="80%" height="80%" src={imgIcon} />
+                <img width="70%" height="70%" src={imgIcon} />
                 <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
                     style={{ display: 'none' }}
                 />
+                
             </label>
+            <button
+                className="menu_button"
+                onClick={() => setShowColorPicker(!showColorPicker)}
+            >
+                <img width="80%" height="80%" src={colorIcon} />
+            </button>
+            {showColorPicker && <ColorPicker onClose={() => setShowColorPicker(false)} />}
         </div>
     );
 };

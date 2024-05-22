@@ -5,6 +5,7 @@ const initialState = {
     elements: [],
     roomId: null, // Track current room ID
     image: null, 
+    color: "#000000",
 };
 
 const whiteboardSlice = createSlice({
@@ -34,9 +35,12 @@ const whiteboardSlice = createSlice({
         setImage: (state, action) => {
             state.image = action.payload; // Ustawiamy dane obrazu
         },
+        setColor: (state, action) => {
+            state.color = action.payload; 
+        },
     },
 });
 
-export const { setToolType, updateElement, setElements, setRoomId, setImage } = whiteboardSlice.actions;
+export const { setToolType, updateElement, setElements, setRoomId, setImage,  setColor } = whiteboardSlice.actions;
 
 export default whiteboardSlice.reducer;
