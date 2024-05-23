@@ -5,7 +5,6 @@ import rough from "roughjs/bundled/rough.esm";
 import { actions, cursorPositions, toolTypes } from "../constants";
 import {
     createElement,
-    updateElement,
     drawElement,
     adjustmentRequired,
     adjustElementCoordinates,
@@ -17,6 +16,7 @@ import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore, setImage, updateCanvasSize } from "./whiteboardSlice";
 import { emitCursorPosition, emitElementUpdate, emitImageUpload, emitCanvasResize } from "../socketConn/socketConn";
 import PropTypes from 'prop-types';
+import { updateElement } from "./utils"; // Import the updateElement function
 
 let emitCursor = true;
 let lastCursorPosition;
@@ -115,16 +115,29 @@ const Whiteboard = ({ user }) => {
             }
             case toolTypes.SELECTION: {
                 const element = getElementAtPosition(x, y, elements);
+                console.log("Clicked Element: ", element);
 
                 if (element) {
                     setAction(
                         element.position === cursorPositions.INSIDE ? actions.MOVING : actions.RESIZING
                     );
 
-                    const offsetX = x - element.x1;
-                    const offsetY = y - element.y1;
+                    let offsetX, offsetY;
+                    if (element.type === toolTypes.PENCIL) {
+                        // For pencil, calculate the offset based on the first point
+                        const firstPoint = element.points[0];
+                        offsetX = x - firstPoint.x;
+                        offsetY = y - firstPoint.y;
+                    } else {
+                        offsetX = x - element.x1;
+                        offsetY = y - element.y1;
+                    }
 
+                    console.log("Selected Element for Moving/Resizing: ", { ...element, offsetX, offsetY });
                     setSelectedElement({ ...element, offsetX, offsetY });
+                } else {
+                    setSelectedElement(null);
+                    setAction(null);
                 }
                 break;
             }
@@ -150,38 +163,6 @@ const Whiteboard = ({ user }) => {
         }
     };
 
-    const handleMouseUp = () => {
-        const selectedElementIndex = elements.findIndex(
-            (el) => el.id === selectedElement?.id
-        );
-
-        if (selectedElementIndex !== -1) {
-            if (action === actions.DRAWING || action === actions.RESIZING) {
-                if (adjustmentRequired(elements[selectedElementIndex].type)) {
-                    const { x1, y1, x2, y2 } = adjustElementCoordinates(
-                        elements[selectedElementIndex]
-                    );
-
-                    updateElement(
-                        {
-                            id: selectedElement.id,
-                            index: selectedElementIndex,
-                            x1,
-                            x2,
-                            y1,
-                            y2,
-                            type: elements[selectedElementIndex].type,
-                            color: elements[selectedElementIndex].color,
-                        },
-                        elements
-                    );
-                }
-            }
-        }
-
-        setAction(null);
-        setSelectedElement(null);
-    };
 
     const handleMouseMove = (event) => {
         const { clientX, clientY } = event;
@@ -203,19 +184,33 @@ const Whiteboard = ({ user }) => {
             const index = elements.findIndex((el) => el.id === selectedElement.id);
 
             if (index !== -1) {
-                updateElement(
-                    {
-                        index,
-                        id: elements[index].id,
-                        x1: elements[index].x1,
-                        y1: elements[index].y1,
-                        x2: x,
-                        y2: y,
-                        type: elements[index].type,
-                        color: elements[index].color,
-                    },
-                    elements
-                );
+                if (selectedElement.type === toolTypes.PENCIL) {
+                    const points = [...elements[index].points, { x, y }];
+                    updateElement(
+                        {
+                            index,
+                            id: elements[index].id,
+                            points,
+                            type: elements[index].type,
+                            color: elements[index].color,
+                        },
+                        elements
+                    );
+                } else {
+                    updateElement(
+                        {
+                            index,
+                            id: elements[index].id,
+                            x1: elements[index].x1,
+                            y1: elements[index].y1,
+                            x2: x,
+                            y2: y,
+                            type: elements[index].type,
+                            color: elements[index].color,
+                        },
+                        elements
+                    );
+                }
                 emitElementUpdate({ ...elements[index], roomId: user.roomId });
             }
         }
@@ -227,17 +222,35 @@ const Whiteboard = ({ user }) => {
         if (toolType === toolTypes.SELECTION &&
             action === actions.MOVING &&
             selectedElement) {
-            const { id, x1, x2, y1, y2, type, offsetX, offsetY } = selectedElement;
+            const { id, type, offsetX, offsetY } = selectedElement;
 
-            const width = x2 - x1;
-            const height = y2 - y1;
+            if (type === toolTypes.PENCIL) {
+                const newPoints = selectedElement.points.map(point => ({
+                    x: point.x + (x - selectedElement.offsetX),
+                    y: point.y + (y - selectedElement.offsetY)
+                }));
 
-            const newX1 = x - offsetX;
-            const newY1 = y - offsetY;
+                const index = elements.findIndex((el) => el.id === selectedElement.id);
+                if (index !== -1) {
+                    updateElement({
+                        id,
+                        points: newPoints,
+                        type,
+                        index,
+                    }, elements);
+                    emitElementUpdate({ ...elements[index], roomId: user.roomId });
+                }
+            } else {
+                const { x1, x2, y1, y2 } = selectedElement;
+                const width = x2 - x1;
+                const height = y2 - y1;
 
-            const index = elements.findIndex((el) => el.id === selectedElement.id);
-            if (index !== -1) {
-                updateElement({
+                const newX1 = x - offsetX;
+                const newY1 = y - offsetY;
+
+                const index = elements.findIndex((el) => el.id === selectedElement.id);
+                if (index !== -1) {
+                    updateElement({
                         id,
                         x1: newX1,
                         y1: newY1,
@@ -245,9 +258,9 @@ const Whiteboard = ({ user }) => {
                         y2: newY1 + height,
                         type,
                         index,
-                    },
-                    elements
-                );
+                    }, elements);
+                    emitElementUpdate({ ...elements[index], roomId: user.roomId });
+                }
             }
         }
         if (toolType === toolTypes.SELECTION &&
@@ -274,9 +287,56 @@ const Whiteboard = ({ user }) => {
                     },
                     elements
                 );
+                emitElementUpdate({ ...elements[selectedElementIndex], roomId: user.roomId });
             }
         }
     };
+
+
+
+    const handleMouseUp = () => {
+        if (!selectedElement) {
+            setAction(null);
+            return;
+        }
+
+        const selectedElementIndex = elements.findIndex(
+            (el) => el.id === selectedElement.id
+        );
+
+        if (selectedElementIndex !== -1) {
+            if (action === actions.DRAWING || action === actions.RESIZING) {
+                if (adjustmentRequired(elements[selectedElementIndex].type)) {
+                    const adjustedCoordinates = adjustElementCoordinates(
+                        elements[selectedElementIndex]
+                    );
+                    if (adjustedCoordinates) {
+                        const { x1, y1, x2, y2 } = adjustedCoordinates;
+
+                        updateElement(
+                            {
+                                id: selectedElement.id,
+                                index: selectedElementIndex,
+                                x1,
+                                x2,
+                                y1,
+                                y2,
+                                type: elements[selectedElementIndex].type,
+                                color: elements[selectedElementIndex].color,
+                            },
+                            elements
+                        );
+                    } else {
+                        console.error("Adjusted coordinates are undefined");
+                    }
+                }
+            }
+        }
+
+        setAction(null);
+        setSelectedElement(null);
+    };
+
 
     const handleTextareaBlur = (event) => {
         const { id, x1, y1, type } = selectedElement;
