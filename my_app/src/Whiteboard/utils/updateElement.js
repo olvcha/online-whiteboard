@@ -18,8 +18,8 @@ export const updatePencilElementsWhenMoving = ({ index, newPoints}, elements) =>
 };
 
 export const updateElement = (
-  { id, x1, x2, y1, y2, type, index, text, color },
-  elements
+    { id, x1, x2, y1, y2, type, index, text, color, points },
+    elements
 ) => {
   const elementsCopy = [...elements];
 
@@ -40,19 +40,19 @@ export const updateElement = (
 
       store.dispatch(setElements(elementsCopy));
 
-      emitElementUpdate(updatedElement)
+      emitElementUpdate(updatedElement);
       break;
     case toolTypes.PENCIL:
       elementsCopy[index] = {
-        ...elementsCopy[index], //... -> get all of the elements
-        points: [
+        ...elementsCopy[index],
+        points: points ? points : [
           ...elementsCopy[index].points,
           {
             x: x2,
             y: y2,
           }
         ]
-      }
+      };
 
       const updatedPencilElement = elementsCopy[index];
 
@@ -75,10 +75,9 @@ export const updateElement = (
           text,
         }),
       };
-      const updatedTextElement = elementsCopy[index]
+      const updatedTextElement = elementsCopy[index];
       store.dispatch(setElements(elementsCopy));
       emitElementUpdate(updatedTextElement);
-
       break;
     default:
       throw new Error("Something went wrong when updating element");

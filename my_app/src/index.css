@@ -1,32 +1,38 @@
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #8690ea; /* Apply the Roboto font */
 }
 
 .menu_container {
   position: absolute;
   top: 0;
-  width: 350px;
-  left: calc(50% - 175px);
+  width: 600px; /* Adjusted width to better accommodate form */
+  left: calc(50% - 300px); /* Adjusted to center the wider menu */
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   background: #EEEEEE;
-  height: 60px;
+  height: 80px;
   display: flex;
-  justify-content: space-around;
+  justify-content: center; /* Center the content */
   align-items: center;
+  padding: 0 10px; /* Added padding for better spacing */
 }
 
 .menu_button {
   width: 40px;
   height: 40px;
   display: flex;
-  justify-content: center; 
-  align-items: center; 
+  justify-content: center;
+  align-items: center;
   border-radius: 8px;
   border: none;
   transition: 0.3s;
   background: #8690ea;
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+  margin-left: 5px; /* Add margin to space between buttons */
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
 .menu_button:hover {
@@ -39,12 +45,12 @@ body {
   border-radius: 8px;
   border: none;
   background: #E8D5C4;
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
 .cursor {
   transition: 0.1s;
 }
-
 
 .color-picker {
   display: flex;
@@ -72,3 +78,32 @@ body {
   border: 1px solid #bbb;
 }
 
+.resize_form {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: flex-start; /* Align form elements to the start */
+  margin-right: 10px; /* Space between form and buttons */
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+}
+
+.resize_form label {
+  margin: 0 2px; /* Reduced margin for closer spacing */
+}
+
+.resize_form .width_input {
+  width: 60px;
+  margin-left: 10px; /* Move width input to the right */
+  margin-bottom: 5px; /* Add margin to pad the height input */
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+}
+
+.resize_form .height_input {
+  width: 60px;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+}
+
+.resize_form button {
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+}

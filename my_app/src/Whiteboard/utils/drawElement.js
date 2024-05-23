@@ -1,8 +1,8 @@
 import { toolTypes } from "../../constants";
-import { getStroke } from "perfect-freehand"; 
+import { getStroke } from "perfect-freehand";
 import { getSvgPathFromStroke } from "./getSvgPathFromStroke";
 
-const imageCache = new Map(); // Cache do przechowywania obrazów
+const imageCache = new Map(); // Cache for storing images
 
 const drawPencilElement = (context, element) => {
   const myStroke = getStroke(element.points, {
@@ -25,16 +25,16 @@ const drawTextElement = (context, element) => {
 
 const drawImageElement = (context, element) => {
   return new Promise((resolve) => {
-    if (imageCache.has(element.data)) { // Sprawdzanie, czy obraz jest w cache
+    if (imageCache.has(element.data)) { // Check if the image is in cache
       const img = imageCache.get(element.data);
-      context.drawImage(img, element.x1, element.y1);
+      context.drawImage(img, element.x1, element.y1, element.x2 - element.x1, element.y2 - element.y1);
       resolve();
     } else {
       const img = new Image();
       img.src = element.data;
       img.onload = () => {
-        imageCache.set(element.data, img); // Cache'owanie obrazu
-        context.drawImage(img, element.x1, element.y1);
+        imageCache.set(element.data, img); // Cache the image
+        context.drawImage(img, element.x1, element.y1, element.x2 - element.x1, element.y2 - element.y1);
         resolve();
       };
     }
@@ -71,9 +71,9 @@ const drawElementSync = ({ roughCanvas, context, element }) => {
 
 export const drawElement = async ({ roughCanvas, context, element }) => {
   if (element.type === toolTypes.IMAGE) {
-    await drawImageElement(context, element); // Użycie await dla obrazów
+    await drawImageElement(context, element); // Use await for images
   } else {
-    drawElementSync({ roughCanvas, context, element }); // Rysowanie synchroniczne dla pozostałych elementów
-    return Promise.resolve(); // Dodano, aby zwrócić Promise dla elementów nie będących obrazami
+    drawElementSync({ roughCanvas, context, element }); // Synchronous drawing for other elements
+    return Promise.resolve(); // Return a Promise for non-image elements
   }
 };
