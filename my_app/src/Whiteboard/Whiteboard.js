@@ -117,27 +117,30 @@ const Whiteboard = ({ user }) => {
                 const element = getElementAtPosition(x, y, elements);
                 console.log("Clicked Element: ", element);
 
-                if (element) {
+                if (
+                    element &&
+                    (element.type === toolTypes.RECTANGLE ||
+                        element.type === toolTypes.TEXT ||
+                        element.type === toolTypes.LINE)
+                ) {
                     setAction(
-                        element.position === cursorPositions.INSIDE ? actions.MOVING : actions.RESIZING
+                        element.position === cursorPositions.INSIDE
+                            ? actions.MOVING
+                            : actions.RESIZING
                     );
 
-                    let offsetX, offsetY;
-                    if (element.type === toolTypes.PENCIL) {
-                        // For pencil, calculate the offset based on the first point
-                        const firstPoint = element.points[0];
-                        offsetX = x - firstPoint.x;
-                        offsetY = y - firstPoint.y;
-                    } else {
-                        offsetX = x - element.x1;
-                        offsetY = y - element.y1;
-                    }
+                    const offsetX = x - element.x1;
+                    const offsetY = y - element.y1;
 
-                    console.log("Selected Element for Moving/Resizing: ", { ...element, offsetX, offsetY });
                     setSelectedElement({ ...element, offsetX, offsetY });
-                } else {
-                    setSelectedElement(null);
-                    setAction(null);
+                }
+                if (element && element.type === toolTypes.PENCIL) {
+                    setAction(actions.MOVING);
+
+                    const xOffsets = element.points.map((point) => x - point.x);
+                    const yOffsets = element.points.map((point) => y - point.y);
+
+                    setSelectedElement({ ...element, xOffsets, yOffsets });
                 }
                 break;
             }
@@ -184,19 +187,7 @@ const Whiteboard = ({ user }) => {
             const index = elements.findIndex((el) => el.id === selectedElement.id);
 
             if (index !== -1) {
-                if (selectedElement.type === toolTypes.PENCIL) {
-                    const points = [...elements[index].points, { x, y }];
-                    updateElement(
-                        {
-                            index,
-                            id: elements[index].id,
-                            points,
-                            type: elements[index].type,
-                            color: elements[index].color,
-                        },
-                        elements
-                    );
-                } else {
+
                     updateElement(
                         {
                             index,
@@ -210,6 +201,7 @@ const Whiteboard = ({ user }) => {
                         },
                         elements
                     );
+
                 }
                 emitElementUpdate({ ...elements[index], roomId: user.roomId });
             }
@@ -222,7 +214,7 @@ const Whiteboard = ({ user }) => {
         if (toolType === toolTypes.SELECTION &&
             action === actions.MOVING &&
             selectedElement) {
-            const { id, type, offsetX, offsetY } = selectedElement;
+            const { id, type, offsetX, offsetY,text } = selectedElement;
 
             if (type === toolTypes.PENCIL) {
                 const newPoints = selectedElement.points.map(point => ({
@@ -237,6 +229,7 @@ const Whiteboard = ({ user }) => {
                         points: newPoints,
                         type,
                         index,
+                        text,
                     }, elements);
                     emitElementUpdate({ ...elements[index], roomId: user.roomId });
                 }
@@ -295,13 +288,10 @@ const Whiteboard = ({ user }) => {
 
 
     const handleMouseUp = () => {
-        if (!selectedElement) {
-            setAction(null);
-            return;
-        }
+
 
         const selectedElementIndex = elements.findIndex(
-            (el) => el.id === selectedElement.id
+            (el) => el.id === selectedElement?.id
         );
 
         if (selectedElementIndex !== -1) {

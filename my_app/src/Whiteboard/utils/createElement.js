@@ -52,6 +52,8 @@ export const createElement = ({ x1, y1, x2, y2, toolType, color, id, text }) => 
         type: toolType,
         x1,
         y1,
+        x2,
+        y2,
         color,
         text: text || '',
       };
