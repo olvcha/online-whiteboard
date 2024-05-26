@@ -7,6 +7,7 @@ import textIcon from "../resources/icons/text.svg";
 import selectionIcon from "../resources/icons/selection.svg";
 import imgIcon from "../resources/icons/img.svg";
 import colorIcon from "../resources/icons/color.svg";
+import downloadIcon from "../resources/icons/download.svg";
 import ColorPicker from "./ColorPicker";
 import { toolTypes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
@@ -100,6 +101,7 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
             <IconButton src={rubberIcon} isRubber />
             <IconButton src={textIcon} type={toolTypes.TEXT} />
             <IconButton src={selectionIcon} type={toolTypes.SELECTION} />
+
             <label className="menu_button">
                 <img width="70%" height="70%" src={imgIcon} alt="Upload" />
                 <input
@@ -109,6 +111,7 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
                     style={{ display: 'none' }}
                 />
             </label>
+            
             <button
                 className="menu_button"
                 onClick={() => setShowColorPicker(!showColorPicker)}
@@ -117,14 +120,11 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
             </button>
             {showColorPicker && <ColorPicker onClose={() => setShowColorPicker(false)} />}
             
-            
             <button
-                className="export_button"
+                className="menu_button"
                 onClick={() => exportCanvas(canvasRef)}
-                style={{
-        // Optionally add more styling to the button if needed
-                }}
-                >Export to JPG
+                >
+                    <img width="80%" height="80%" src={downloadIcon}/>
             </button>
             
             

@@ -8,8 +8,8 @@ body {
 .menu_container {
   position: absolute;
   top: 0;
-  width: 850px; /* Adjusted width to better accommodate form */
-  left: calc(30% - 300px); /* Adjusted to center the wider menu */
+  width: 1200px; /* Adjusted width to better accommodate form */
+  left: calc(29% - 300px); /* Adjusted to center the wider menu */
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   background: #EEEEEE;
@@ -49,11 +49,12 @@ body {
 }
 
 .export_button {
-  width: 80px;
+  width: 120px;
   height: 40px;
-  margin-left: 10px; /* Add margin to space between buttons */
+  margin-left: 40px; /* Add margin to space between buttons */
   border-radius: 8px;
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+  font-size: 15px;
   transition: 0.43;
   flex-shrink: 0; /* Prevent buttons from shrinking */
 }
@@ -131,6 +132,7 @@ body {
   height: 40px;
   border-radius: 8px;
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+  font-size: 15px;
   flex-shrink: 0; /* Prevent buttons from shrinking */
   margin-top: 10px;
   margin-left: 20px;
