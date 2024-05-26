@@ -8,8 +8,8 @@ body {
 .menu_container {
   position: absolute;
   top: 0;
-  width: 600px; /* Adjusted width to better accommodate form */
-  left: calc(50% - 300px); /* Adjusted to center the wider menu */
+  width: 850px; /* Adjusted width to better accommodate form */
+  left: calc(30% - 300px); /* Adjusted to center the wider menu */
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   background: #EEEEEE;
@@ -48,6 +48,20 @@ body {
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
+.export_button {
+  width: 80px;
+  height: 40px;
+  margin-left: 10px; /* Add margin to space between buttons */
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+  transition: 0.43;
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+.export_button:hover {
+  background-color: #da9cec;
+}
+
 .cursor {
   transition: 0.1s;
 }
@@ -56,7 +70,8 @@ body {
   display: flex;
   flex-wrap: wrap;
   position: absolute;
-  top: 70px; /* Adjust based on the menu position */
+  top: 80px; /* Adjust based on the menu position */
+  left: 370px;
   background: white;
   border: 1px solid #ccc;
   padding: 10px;
@@ -80,9 +95,9 @@ body {
 
 .resize_form {
   display: flex;
-  flex-direction: column; /* Stack elements vertically */
+  flex-direction: row; /* Stack elements vertically */
   align-items: flex-start; /* Align form elements to the start */
-  margin-right: 10px; /* Space between form and buttons */
+  margin-right: 15px; /* Space between form and buttons */
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
@@ -90,10 +105,17 @@ body {
   margin: 0 2px; /* Reduced margin for closer spacing */
 }
 
+.resize_form_input {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+  margin-right: 10px;
+}
+
 .resize_form .width_input {
   width: 60px;
-  margin-left: 10px; /* Move width input to the right */
-  margin-bottom: 5px; /* Add margin to pad the height input */
+  margin-left: 11px; /* Move width input to the right */
+  margin-bottom: 10px; /* Add margin to pad the height input */
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
@@ -105,5 +127,12 @@ body {
 }
 
 .resize_form button {
+  width: 80px;
+  height: 40px;
+  border-radius: 8px;
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+  margin-top: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
 }

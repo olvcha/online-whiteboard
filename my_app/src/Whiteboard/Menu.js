@@ -12,6 +12,7 @@ import { toolTypes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { setElements, setToolType, setImage } from "./whiteboardSlice";
 import { emitClearWhiteboard } from "../socketConn/socketConn";
+import exportCanvas from "../Whiteboard/utils/canvasExport";
 
 const IconButton = ({ src, type, isRubber }) => {
     const dispatch = useDispatch();
@@ -41,7 +42,7 @@ const IconButton = ({ src, type, isRubber }) => {
     );
 };
 
-const Menu = ({ onResize, initialCanvasSize }) => {
+const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
     const dispatch = useDispatch();
     const [showColorPicker, setShowColorPicker] = useState(false);
     const [width, setWidth] = useState(initialCanvasSize.width);
@@ -71,25 +72,27 @@ const Menu = ({ onResize, initialCanvasSize }) => {
     return (
         <div className="menu_container">
             <div className="resize_form">
+                <div className="resize_form_input">
                 <label>
-                    Width:
-                    <input
-                        type="number"
-                        value={width}
-                        onChange={(e) => setWidth(e.target.value)}
-                        className="width_input"
-                    />
-                </label>
-                <label>
-                    Height:
-                    <input
-                        type="number"
-                        value={height}
-                        onChange={(e) => setHeight(e.target.value)}
-                        className="height_input"
-                    />
-                </label>
-                <button onClick={handleResize}>Resize</button>
+                        Width:  
+                        <input
+                            type="number"
+                            value={width}
+                            onChange={(e) => setWidth(e.target.value)}
+                            className="width_input"
+                        />
+                    </label>
+                    <label>
+                        Height:
+                        <input
+                            type="number"
+                            value={height}
+                            onChange={(e) => setHeight(e.target.value)}
+                            className="height_input"
+                        />
+                    </label>
+                </div>
+                    <button onClick={handleResize}>Resize</button>
             </div>
             <IconButton src={rectangleIcon} type={toolTypes.RECTANGLE} />
             <IconButton src={lineIcon} type={toolTypes.LINE} />
@@ -113,6 +116,18 @@ const Menu = ({ onResize, initialCanvasSize }) => {
                 <img width="80%" height="80%" src={colorIcon} alt="Color Picker" />
             </button>
             {showColorPicker && <ColorPicker onClose={() => setShowColorPicker(false)} />}
+            
+            
+            <button
+                className="export_button"
+                onClick={() => exportCanvas(canvasRef)}
+                style={{
+        // Optionally add more styling to the button if needed
+                }}
+                >Export to JPG
+            </button>
+            
+            
         </div>
     );
 };

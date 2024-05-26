@@ -361,7 +361,7 @@ const Whiteboard = ({ user }) => {
 
     return (
         <>
-            <Menu onResize={handleResize} initialCanvasSize={canvasSize} />
+            <Menu canvasRef={canvasRef}onResize={handleResize} initialCanvasSize={canvasSize} />
             {action === actions.WRITING ? (
                 <textarea
                     ref={textAreaRef}
