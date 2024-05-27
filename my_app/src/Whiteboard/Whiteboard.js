@@ -116,6 +116,7 @@ const Whiteboard = ({ user }) => {
             case toolTypes.SELECTION: {
                 const element = getElementAtPosition(x, y, elements);
                 console.log("Clicked Element: ", element);
+                
 
                 if (element) {
                     setAction(
@@ -258,6 +259,7 @@ const Whiteboard = ({ user }) => {
                         y2: newY1 + height,
                         type,
                         index,
+                        color: selectedElement.color,
                     }, elements);
                     emitElementUpdate({ ...elements[index], roomId: user.roomId });
                 }
@@ -284,6 +286,7 @@ const Whiteboard = ({ user }) => {
                         type: selectedElement.type,
                         id: selectedElement.id,
                         index: selectedElementIndex,
+                        color: selectedElement.color,
                     },
                     elements
                 );
