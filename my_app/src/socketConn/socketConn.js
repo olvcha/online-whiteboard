@@ -38,13 +38,16 @@ export const connectWithSocketServer = () => {
     socket.on("image-upload", (imageData) => {
         store.dispatch(updateElement(imageData));
     });
-    socket.on("image-upload", (imageData) => {
-        store.dispatch(updateElement(imageData));
-    });
 
     socket.on("canvas-resize", (canvasSize) => {
-        // Dispatch an action to update the canvas size in the Redux store
         store.dispatch(updateCanvasSize(canvasSize));
+    });
+
+    socket.on("error", (errorMessage) => {
+        console.error(errorMessage);
+        // Handle the error appropriately, e.g., show a message to the user
+        alert(errorMessage);
+        // Optionally, redirect the user to another part of the app
     });
 
     return socket; // Return the socket instance
@@ -70,7 +73,6 @@ export const emitImageUpload = (imageData) => {
     socket.emit("image-upload", imageData);
 };
 
-// New function to emit canvas resize events
 export const emitCanvasResize = (canvasSize) => {
     socket.emit("canvas-resize", canvasSize);
 };

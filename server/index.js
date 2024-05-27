@@ -10,6 +10,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 let rooms = {};
+let roomTimers = {}; // To store timers for empty rooms
 
 const io = new Server(server, {
     cors: {
@@ -20,13 +21,22 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     socket.on("join-room", (roomId) => {
-        socket.join(roomId);
-        console.log('user connected ROOM =', roomId);
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 elements: [],
-                canvasSize: { width: 800, height: 600 } // Default canvas size
+                canvasSize: { width: 800, height: 600 }, // Default canvas size
+                users: 0 // Track the number of users
             };
+        }
+
+        rooms[roomId].users += 1;
+        socket.join(roomId);
+
+
+        // Clear the delete timer if it exists
+        if (roomTimers[roomId]) {
+            clearTimeout(roomTimers[roomId]);
+            delete roomTimers[roomId];
         }
 
         // Send the current state of the whiteboard and canvas size to the new user
@@ -51,7 +61,16 @@ io.on('connection', (socket) => {
         });
 
         socket.on("disconnect", () => {
+            rooms[roomId].users -= 1;
             socket.to(roomId).emit("user-disconnected", socket.id);
+
+            // If room becomes empty, set a timer to delete it
+            if (rooms[roomId].users === 0) {
+                roomTimers[roomId] = setTimeout(() => {
+                    delete rooms[roomId]; // This will delete the room and all its elements
+                    console.log(`Room ${roomId} deleted due to inactivity`);
+                }, 60000); // 60 seconds
+            }
         });
 
         socket.on("image-upload", (imageData) => {
@@ -60,7 +79,6 @@ io.on('connection', (socket) => {
             console.log('image upload');
         });
 
-        // Handle canvas resize event
         socket.on("canvas-resize", (canvasSize) => {
             rooms[roomId].canvasSize = canvasSize;
             socket.to(roomId).emit("canvas-resize", canvasSize);
