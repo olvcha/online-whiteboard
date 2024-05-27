@@ -4,7 +4,7 @@ import { store } from "../../store/store";
 import { setElements } from "../whiteboardSlice";
 import { emitElementUpdate } from "../../socketConn/socketConn";
 
-export const updatePencilElementsWhenMoving = ({ index, newPoints}, elements) => {
+export const updatePencilElementsWhenMoving = ({ index, newPoints }, elements) => {
   const elementsCopy = [...elements];
 
   elementsCopy[index] = {
@@ -21,6 +21,13 @@ export const updateElement = (
     { id, x1, x2, y1, y2, type, index, text, color, points },
     elements
 ) => {
+  console.log('updateElement called with elements:', elements);
+
+  if (!Array.isArray(elements)) {
+    console.error('Elements is not an array:', elements);
+    throw new Error("Elements must be an array");
+  }
+
   const elementsCopy = [...elements];
 
   switch (type) {
@@ -78,6 +85,9 @@ export const updateElement = (
       const updatedTextElement = elementsCopy[index];
       store.dispatch(setElements(elementsCopy));
       emitElementUpdate(updatedTextElement);
+      break;
+    case toolTypes.IMAGE:
+      // Skip updating image elements
       break;
     default:
       throw new Error("Something went wrong when updating element");

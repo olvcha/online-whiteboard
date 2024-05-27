@@ -27,18 +27,30 @@ const drawImageElement = (context, element) => {
   return new Promise((resolve) => {
     if (imageCache.has(element.data)) { // Check if the image is in cache
       const img = imageCache.get(element.data);
-      context.drawImage(img, element.x1, element.y1, element.x2 - element.x1, element.y2 - element.y1);
+      console.log('Using cached image:', element.data);
+      drawImage(context, img, element);
       resolve();
     } else {
       const img = new Image();
       img.src = element.data;
       img.onload = () => {
         imageCache.set(element.data, img); // Cache the image
-        context.drawImage(img, element.x1, element.y1, element.x2 - element.x1, element.y2 - element.y1);
+        console.log('Image loaded:', element.data, 'Natural size:', img.naturalWidth, 'x', img.naturalHeight);
+        drawImage(context, img, element);
         resolve();
       };
     }
   });
+};
+
+const drawImage = (context, img, element) => {
+  let { x1, y1 } = element;
+  const width = img.naturalWidth;
+  const height = img.naturalHeight;
+
+  console.log(`Drawing image at (${x1}, ${y1}) with width: ${width} and height: ${height}`);
+
+  context.drawImage(img, x1, y1, width, height);
 };
 
 const drawElementSync = ({ roughCanvas, context, element }) => {
