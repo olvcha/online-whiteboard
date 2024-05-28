@@ -4,13 +4,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import './JoinCreateRoom.css';
 
 const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
-    const [roomId, setRoomId] = useState(uuid());
-    const [name, setName] = useState("");
-    const [joinName, setJoinName] = useState("");
-    const [joinRoomId, setJoinRoomId] = useState("");
+    const [roomId, setRoomId] = useState(uuid()); // State to store the room ID for creating a new room
+    const [name, setName] = useState(""); // State to store the user's name for creating a room
+    const [joinName, setJoinName] = useState(""); // State to store the user's name for joining a room
+    const [joinRoomId, setJoinRoomId] = useState(""); // State to store the room ID for joining an existing room
 
     useEffect(() => {
-        // Add the class to the body element
+        // Add the class to the body element when the component mounts
         document.body.classList.add('join-create-room-background');
 
         // Remove the class when the component unmounts
@@ -21,8 +21,9 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
 
     const handleCreateSubmit = (e) => {
         e.preventDefault();
-        if (!name) return toast("Please enter your name!");
+        if (!name) return toast("Please enter your name!"); // Show a toast message if the name is not entered
 
+        // Set the user information and mark the room as joined
         setUser({
             roomId,
             userId: uuid(),
@@ -33,8 +34,9 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
 
     const handleJoinSubmit = (e) => {
         e.preventDefault();
-        if (!joinName) return toast("Please enter your name!");
+        if (!joinName) return toast("Please enter your name!"); // Show a toast message if the join name is not entered
 
+        // Set the user information and mark the room as joined
         setUser({
             roomId: joinRoomId,
             userId: uuid(),
@@ -61,7 +63,7 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
                                 placeholder="Name"
                                 className="input-field"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => setName(e.target.value)} // Update the name state on input change
                             />
                         </div>
                         <div className="input-group margin-y-small">
@@ -69,13 +71,13 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
                                 type="text"
                                 className="input-field no-border no-outline"
                                 value={roomId}
-                                readOnly
+                                readOnly // Make the room ID input read-only
                             />
                             <div className="input-group-append">
                                 <button
                                     className="button button-outline-primary no-border button-small"
                                     type="button"
-                                    onClick={() => setRoomId(uuid())}
+                                    onClick={() => setRoomId(uuid())} // Generate a new room ID
                                 >
                                     Generate
                                 </button>
@@ -85,7 +87,7 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
                                     type="button"
                                     onClick={() => {
                                         navigator.clipboard.writeText(roomId);
-                                        toast.success("Room Id Copied To Clipboard!");
+                                        toast.success("Room Id Copied To Clipboard!"); // Copy the room ID to the clipboard and show a success message
                                     }}
                                 >
                                     Copy
@@ -108,7 +110,7 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
                                 placeholder="Name"
                                 className="input-field"
                                 value={joinName}
-                                onChange={(e) => setJoinName(e.target.value)}
+                                onChange={(e) => setJoinName(e.target.value)} // Update the join name state on input change
                             />
                         </div>
                         <div className="form-group margin-y-small">
@@ -116,7 +118,7 @@ const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
                                 type="text"
                                 className="input-field no-outline"
                                 value={joinRoomId}
-                                onChange={(e) => setJoinRoomId(e.target.value)}
+                                onChange={(e) => setJoinRoomId(e.target.value)} // Update the join room ID state on input change
                                 placeholder="Room Id"
                             />
                         </div>

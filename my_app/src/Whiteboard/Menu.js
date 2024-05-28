@@ -15,9 +15,11 @@ import { setElements, setToolType, setImage } from "./whiteboardSlice";
 import { emitClearWhiteboard } from "../socketConn/socketConn";
 import exportCanvas from "../Whiteboard/utils/canvasExport";
 
+// Component for individual tool buttons
 const IconButton = ({ src, type, isRubber }) => {
     const dispatch = useDispatch();
     const selectedToolType = useSelector((state) => state.whiteboard.tool);
+
 
     const handleToolChange = () => {
         if (!isRubber) {
@@ -29,7 +31,6 @@ const IconButton = ({ src, type, isRubber }) => {
         dispatch(setElements([]));
         emitClearWhiteboard();
     };
-
 
     return (
         <button
@@ -43,6 +44,7 @@ const IconButton = ({ src, type, isRubber }) => {
     );
 };
 
+// Menu component for whiteboard tools
 const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
     const dispatch = useDispatch();
     const [showColorPicker, setShowColorPicker] = useState(false);
@@ -53,6 +55,7 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
         setWidth(initialCanvasSize.width);
         setHeight(initialCanvasSize.height);
     }, [initialCanvasSize]);
+
 
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
@@ -66,6 +69,7 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
         }
     };
 
+    // Handle canvas resize
     const handleResize = () => {
         onResize(parseInt(width, 10), parseInt(height, 10));
     };
@@ -74,8 +78,8 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
         <div className="menu_container">
             <div className="resize_form">
                 <div className="resize_form_input">
-                <label>
-                        Width:  
+                    <label>
+                        Width:
                         <input
                             type="number"
                             value={width}
@@ -93,7 +97,7 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
                         />
                     </label>
                 </div>
-                    <button onClick={handleResize}>Resize</button>
+                <button onClick={handleResize}>Resize</button>
             </div>
             <IconButton src={rectangleIcon} type={toolTypes.RECTANGLE} />
             <IconButton src={lineIcon} type={toolTypes.LINE} />
@@ -101,7 +105,6 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
             <IconButton src={rubberIcon} isRubber />
             <IconButton src={textIcon} type={toolTypes.TEXT} />
             <IconButton src={selectionIcon} type={toolTypes.SELECTION} />
-
             <label className="menu_button">
                 <img width="70%" height="70%" src={imgIcon} alt="Upload" />
                 <input
@@ -111,7 +114,6 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
                     style={{ display: 'none' }}
                 />
             </label>
-            
             <button
                 className="menu_button"
                 onClick={() => setShowColorPicker(!showColorPicker)}
@@ -119,15 +121,12 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
                 <img width="80%" height="80%" src={colorIcon} alt="Color Picker" />
             </button>
             {showColorPicker && <ColorPicker onClose={() => setShowColorPicker(false)} />}
-            
             <button
                 className="menu_button"
                 onClick={() => exportCanvas(canvasRef)}
-                >
-                    <img width="80%" height="80%" src={downloadIcon}/>
+            >
+                <img width="80%" height="80%" src={downloadIcon} alt="Download" />
             </button>
-            
-            
         </div>
     );
 };

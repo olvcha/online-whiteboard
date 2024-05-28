@@ -10,13 +10,16 @@ const Room = ({ user }) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        // Establish connection with the socket server
         const socket = connectWithSocketServer();
 
+        // If user and roomId are available, set the roomId in the store and join the room
         if (user && user.roomId) {
             dispatch(setRoomId(user.roomId));
             joinRoom(user.roomId);
         }
 
+        // Clean up the socket connection when the component unmounts
         return () => {
             socket.disconnect();
         };
@@ -30,6 +33,7 @@ const Room = ({ user }) => {
     );
 };
 
+// Define prop types for the Room component
 Room.propTypes = {
     user: PropTypes.shape({
         roomId: PropTypes.string.isRequired,

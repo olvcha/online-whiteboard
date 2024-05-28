@@ -1,17 +1,22 @@
+// Import required modules
 const express = require('express');
 const app = express();
 const http = require('http');
 const cors = require('cors');
 const { Server } = require("socket.io");
 
+// Create an HTTP server
 const server = http.createServer(app);
 
+// Use CORS and JSON parsing middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+// Initialize in-memory storage for rooms and timers for empty rooms
 let rooms = {};
-let roomTimers = {}; // To store timers for empty rooms
+let roomTimers = {};
 
+// Create a new instance of Socket.IO server with CORS configuration
 const io = new Server(server, {
     cors: {
         origin: '*',
@@ -19,8 +24,12 @@ const io = new Server(server, {
     },
 });
 
+// Handle new socket connections
 io.on('connection', (socket) => {
+
+    // Handle the event when a user joins a room
     socket.on("join-room", (roomId) => {
+        // Create a new room if it doesn't exist
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 elements: [],
@@ -29,9 +38,9 @@ io.on('connection', (socket) => {
             };
         }
 
+        // Increase the user count for the room
         rooms[roomId].users += 1;
         socket.join(roomId);
-
 
         // Clear the delete timer if it exists
         if (roomTimers[roomId]) {
@@ -43,16 +52,19 @@ io.on('connection', (socket) => {
         io.to(socket.id).emit("whiteboard-state", rooms[roomId].elements);
         io.to(socket.id).emit("canvas-resize", rooms[roomId].canvasSize);
 
+        // Handle updates to elements on the whiteboard
         socket.on("element-update", (elementData) => {
             updateElementInRoom(roomId, elementData);
             socket.to(roomId).emit('element-update', elementData);
         });
 
+        // Handle clearing of the whiteboard
         socket.on("whiteboard-clear", () => {
             rooms[roomId].elements = [];
             socket.to(roomId).emit("whiteboard-clear");
         });
 
+        // Handle updates to cursor positions
         socket.on('cursor-position', (cursorData) => {
             socket.to(roomId).emit('cursor-position', {
                 ...cursorData,
@@ -60,6 +72,7 @@ io.on('connection', (socket) => {
             });
         });
 
+        // Handle disconnections
         socket.on("disconnect", () => {
             rooms[roomId].users -= 1;
             socket.to(roomId).emit("user-disconnected", socket.id);
@@ -73,12 +86,14 @@ io.on('connection', (socket) => {
             }
         });
 
+        // Handle image uploads to the whiteboard
         socket.on("image-upload", (imageData) => {
             rooms[roomId].elements.push(imageData);
             io.to(roomId).emit('image-upload', imageData);
-            console.log('image upload');
+            console.log('Image uploaded');
         });
 
+        // Handle canvas resize events
         socket.on("canvas-resize", (canvasSize) => {
             rooms[roomId].canvasSize = canvasSize;
             socket.to(roomId).emit("canvas-resize", canvasSize);
@@ -86,21 +101,25 @@ io.on('connection', (socket) => {
     });
 });
 
+// Define a simple route to verify the server is working
 app.get('/', (req, res) => {
     res.send("Server is working");
 });
 
+// Start the server on the specified port
 const PORT = process.env.PORT || 3003;
-
 server.listen(PORT, () => {
-    console.log("server is running on port", PORT);
+    console.log("Server is running on port", PORT);
 });
 
+// Function to update elements in a specific room
 const updateElementInRoom = (roomId, elementData) => {
     const room = rooms[roomId];
     const index = room.elements.findIndex(element => element.id === elementData.id);
 
+    // Add new element if it doesn't exist
     if (index === -1) return room.elements.push(elementData);
 
+    // Update existing element
     room.elements[index] = elementData;
 };
