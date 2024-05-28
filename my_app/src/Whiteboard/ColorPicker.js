@@ -17,8 +17,8 @@ const ColorPicker = ({ onClose }) => {
         onClose();
     };
 
-    return (
-        <div className="color-picker"> // Color picker container
+    return ( // Color picker container
+        <div className="color-picker"> 
             {colors.map(color => ( // Map through colors and create a div for each
                 <div
                     key={color} // Unique key for each color
