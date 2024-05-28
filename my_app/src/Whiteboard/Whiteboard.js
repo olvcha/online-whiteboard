@@ -18,23 +18,24 @@ import { emitCursorPosition, emitElementUpdate, emitImageUpload, emitCanvasResiz
 import PropTypes from 'prop-types';
 import { updateElement } from "./utils"; // Import the updateElement function
 
-let emitCursor = true;
-let lastCursorPosition;
+let emitCursor = true; // Flag to control the frequency of cursor position updates
+let lastCursorPosition; // Stores the last cursor position
 
 const Whiteboard = ({ user }) => {
-    const canvasRef = useRef();
-    const textAreaRef = useRef();
-    const toolType = useSelector((state) => state.whiteboard.tool);
-    const elements = useSelector((state) => state.whiteboard.elements);
-    const imageToInsert = useSelector((state) => state.whiteboard.image);
-    const selectedColor = useSelector((state) => state.whiteboard.color);
-    const canvasSize = useSelector((state) => state.whiteboard.canvasSize);
+    const canvasRef = useRef(); // Ref for the canvas element
+    const textAreaRef = useRef(); // Ref for the text area element
+    const toolType = useSelector((state) => state.whiteboard.tool); // Selected tool type from Redux store
+    const elements = useSelector((state) => state.whiteboard.elements); // Elements from Redux store
+    const imageToInsert = useSelector((state) => state.whiteboard.image); // Image to insert from Redux store
+    const selectedColor = useSelector((state) => state.whiteboard.color); // Selected color from Redux store
+    const canvasSize = useSelector((state) => state.whiteboard.canvasSize); // Canvas size from Redux store
 
-    const [action, setAction] = useState(null);
-    const [selectedElement, setSelectedElement] = useState(null);
+    const [action, setAction] = useState(null); // Current action state
+    const [selectedElement, setSelectedElement] = useState(null); // Currently selected element
 
     const dispatch = useDispatch();
 
+    // Set initial canvas size
     useEffect(() => {
         const canvas = canvasRef.current;
         const width = canvas.width || 800;  // Default width
@@ -42,11 +43,12 @@ const Whiteboard = ({ user }) => {
         dispatch(updateCanvasSize({ width, height }));
     }, [dispatch]);
 
+     // Redraw elements on canvas when elements or canvas size changes
     useLayoutEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
         const roughCanvas = rough.canvas(canvas);
 
@@ -60,24 +62,27 @@ const Whiteboard = ({ user }) => {
 
     }, [elements, canvasSize]);
 
+    // Handle canvas resize
     const handleResize = (width, height) => {
         const newSize = { width, height };
         dispatch(updateCanvasSize(newSize));
-        emitCanvasResize(newSize);
+        emitCanvasResize(newSize); // Emit canvas resize event to server
     };
 
+    // Adjust coordinates for canvas scroll
     const adjustForScroll = (clientX, clientY) => {
         const canvas = canvasRef.current;
         const { left, top } = canvas.getBoundingClientRect();
         return { x: clientX - left, y: clientY - top };
     };
 
+    // Handle mouse down event on canvas
     const handleMouseDown = (event) => {
         const { clientX, clientY } = event;
         const { x, y } = adjustForScroll(clientX, clientY);
 
         if (selectedElement && action === actions.WRITING) {
-            return;
+            return; // Prevent any action if a text element is being written
         }
 
         switch (toolType) {
@@ -93,9 +98,9 @@ const Whiteboard = ({ user }) => {
                     id: uuid(),
                     color: selectedColor,
                 });
-                setAction(actions.DRAWING);
-                setSelectedElement(element);
-                dispatch(updateElementInStore(element));
+                setAction(actions.DRAWING); // Set action to drawing
+                setSelectedElement(element); // Set the selected element
+                dispatch(updateElementInStore(element)); // Dispatch action to store the element in Redux
                 break;
             }
             case toolTypes.TEXT: {
@@ -108,17 +113,18 @@ const Whiteboard = ({ user }) => {
                     id: uuid(),
                     color: selectedColor,
                 });
-                setAction(actions.WRITING);
-                setSelectedElement(element);
-                dispatch(updateElementInStore(element));
+                setAction(actions.WRITING); // Set action to writing
+                setSelectedElement(element); // Set the selected element
+                dispatch(updateElementInStore(element)); // Dispatch action to store the element in Redux
                 break;
             }
             case toolTypes.SELECTION: {
-                const element = getElementAtPosition(x, y, elements);
+                const element = getElementAtPosition(x, y, elements); // Get element at clicked position
                 console.log("Clicked Element: ", element);
                 
 
                 if (element) {
+                    // Set action to moving or resizing based on the cursor position
                     setAction(
                         element.position === cursorPositions.INSIDE ? actions.MOVING : actions.RESIZING
                     );
@@ -135,7 +141,7 @@ const Whiteboard = ({ user }) => {
                     }
 
                     console.log("Selected Element for Moving/Resizing: ", { ...element, offsetX, offsetY });
-                    setSelectedElement({ ...element, offsetX, offsetY });
+                    setSelectedElement({ ...element, offsetX, offsetY }); // Set selected element with offsets
                 } else {
                     setSelectedElement(null);
                     setAction(null);
@@ -153,9 +159,9 @@ const Whiteboard = ({ user }) => {
                         x2: x + 100, // Add default width for the image
                         y2: y + 100, // Add default height for the image
                     };
-                    dispatch(updateElementInStore(element));
-                    emitImageUpload({ ...element, roomId: user.roomId });
-                    dispatch(setImage(null));
+                    dispatch(updateElementInStore(element)); // Dispatch action to store the element in Redux
+                    emitImageUpload({ ...element, roomId: user.roomId }); // Emit image upload event to server
+                    dispatch(setImage(null)); // Reset image to insert in Redux store
                 }
                 break;
             }
@@ -165,12 +171,14 @@ const Whiteboard = ({ user }) => {
     };
 
 
+    // Handle mouse move event on canvas
     const handleMouseMove = (event) => {
         const { clientX, clientY } = event;
         const { x, y } = adjustForScroll(clientX, clientY);
 
-        lastCursorPosition = { x, y };
+        lastCursorPosition = { x, y }; // Update the last cursor position
 
+        // Emit cursor position to server with a delay
         if (emitCursor) {
             emitCursorPosition({ x, y, userId: user.userId, userName: user.userName, roomId: user.roomId });
             emitCursor = false;
@@ -186,6 +194,7 @@ const Whiteboard = ({ user }) => {
 
             if (index !== -1) {
                 if (selectedElement.type === toolTypes.PENCIL) {
+                    // Add new point to the pencil element's points array
                     const points = [...elements[index].points, { x, y }];
                     updateElement(
                         {
@@ -198,6 +207,7 @@ const Whiteboard = ({ user }) => {
                         elements
                     );
                 } else {
+                    // Update the x2 and y2 coordinates of the element
                     updateElement(
                         {
                             index,
@@ -212,12 +222,13 @@ const Whiteboard = ({ user }) => {
                         elements
                     );
                 }
-                emitElementUpdate({ ...elements[index], roomId: user.roomId });
+                emitElementUpdate({ ...elements[index], roomId: user.roomId }); // Emit element update event to server
             }
         }
         if (toolType === toolTypes.SELECTION) {
-            const element = getElementAtPosition(x, y, elements);
+            const element = getElementAtPosition(x, y, elements); // Get element at cursor position
 
+            // Update cursor style based on element position
             event.target.style.cursor = element ? getCursorForPosition(element.position) : "default";
         }
         if (toolType === toolTypes.SELECTION &&
@@ -226,6 +237,7 @@ const Whiteboard = ({ user }) => {
             const { id, type, offsetX, offsetY } = selectedElement;
 
             if (type === toolTypes.PENCIL) {
+                // Calculate new points for the pencil element based on movement
                 const newPoints = selectedElement.points.map(point => ({
                     x: point.x + (x - selectedElement.offsetX),
                     y: point.y + (y - selectedElement.offsetY)
@@ -242,6 +254,7 @@ const Whiteboard = ({ user }) => {
                     emitElementUpdate({ ...elements[index], roomId: user.roomId });
                 }
             } else {
+                // Calculate new coordinates for the element based on movement
                 const { x1, x2, y1, y2 } = selectedElement;
                 const width = x2 - x1;
                 const height = y2 - y1;
@@ -261,13 +274,14 @@ const Whiteboard = ({ user }) => {
                         index,
                         color: selectedElement.color,
                     }, elements);
-                    emitElementUpdate({ ...elements[index], roomId: user.roomId });
+                    emitElementUpdate({ ...elements[index], roomId: user.roomId }); // Emit element update event to server
                 }
             }
         }
         if (toolType === toolTypes.SELECTION &&
             action === actions.RESIZING &&
             selectedElement) {
+            // Calculate new coordinates for the element based on resizing
             const { id, type, position, ...coordinates } = selectedElement;
             const { x1, y1, x2, y2 } = getResizedCoordinates(
                 x,
@@ -290,16 +304,16 @@ const Whiteboard = ({ user }) => {
                     },
                     elements
                 );
-                emitElementUpdate({ ...elements[selectedElementIndex], roomId: user.roomId });
+                emitElementUpdate({ ...elements[selectedElementIndex], roomId: user.roomId }); // Emit element update event to server
             }
         }
     };
 
 
-
+    // Handle mouse up event on canvas
     const handleMouseUp = () => {
         if (!selectedElement) {
-            setAction(null);
+            setAction(null); // Reset action if no element is selected
             return;
         }
 
@@ -336,11 +350,11 @@ const Whiteboard = ({ user }) => {
             }
         }
 
-        setAction(null);
-        setSelectedElement(null);
+        setAction(null); // Reset action state
+        setSelectedElement(null); // Reset selected element
     };
 
-
+    // Handle text area blur event
     const handleTextareaBlur = (event) => {
         const { id, x1, y1, type } = selectedElement;
         const index = elements.findIndex((el) => el.id === selectedElement.id);
@@ -355,10 +369,10 @@ const Whiteboard = ({ user }) => {
                 color: selectedColor,
             };
             updateElement(updatedElement, elements);
-            dispatch(updateElementInStore(updatedElement));
-            emitElementUpdate({ ...updatedElement, roomId: user.roomId });
-            setAction(null);
-            setSelectedElement(null);
+            dispatch(updateElementInStore(updatedElement)); // Dispatch action to store the updated element in Redux
+            emitElementUpdate({ ...updatedElement, roomId: user.roomId }); // Emit element update event to server
+            setAction(null); // Reset action state
+            setSelectedElement(null); // Reset selected element
         }
     };
 
