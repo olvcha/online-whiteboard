@@ -49,7 +49,7 @@ export const updatePencilElementsWhenMoving = ({ index, newPoints }, elements) =
  * @param {Array} elements - The current list of elements.
  */
 export const updateElement = (
-    { id, x1, x2, y1, y2, type, index, text, color, points, pencilSize },
+    { id, x1, x2, y1, y2, type, index, text, color, points, pencilSize, textSize },
     elements
 ) => {
   console.log('updateElement called with elements:', elements);
@@ -124,6 +124,7 @@ export const updateElement = (
           y2: y1 + textHeight,
           toolType: type,
           text,
+          textSize,
         }),
       };
 
