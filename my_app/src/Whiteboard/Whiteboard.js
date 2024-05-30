@@ -29,6 +29,7 @@ const Whiteboard = ({ user }) => {
     const imageToInsert = useSelector((state) => state.whiteboard.image); // Image to insert from Redux store
     const selectedColor = useSelector((state) => state.whiteboard.color); // Selected color from Redux store
     const pencilSize = useSelector((state) => state.whiteboard.pencilSize); // Pencil size from Redux store
+    const textSize = useSelector((state) => state.whiteboard.textSize); // Text size from Redux store
     const canvasSize = useSelector((state) => state.whiteboard.canvasSize); // Canvas size from Redux store
 
     const [action, setAction] = useState(null); // Current action state
@@ -114,6 +115,7 @@ const Whiteboard = ({ user }) => {
                     toolType,
                     id: uuid(),
                     color: selectedColor,
+                    textSize: textSize,
                 });
                 setAction(actions.WRITING); // Set action to writing
                 setSelectedElement(element); // Set the selected element
@@ -205,7 +207,7 @@ const Whiteboard = ({ user }) => {
                             points,
                             type: elements[index].type,
                             color: elements[index].color,
-                            size: elements[index].pencilSize,
+                            pencilSize: elements[index].pencilSize,
                         },
                         elements
                     );
@@ -370,6 +372,7 @@ const Whiteboard = ({ user }) => {
                 text: event.target.value,
                 index,
                 color: selectedColor,
+                textSize,
             };
             updateElement(updatedElement, elements);
             dispatch(updateElementInStore(updatedElement)); // Dispatch action to store the updated element in Redux

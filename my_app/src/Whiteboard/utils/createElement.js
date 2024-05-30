@@ -14,7 +14,7 @@ const generateLine = ({ x1, y1, x2, y2, color }) => {
 };
 
 // Function to create an element based on the tool type
-export const createElement = ({ x1, y1, x2, y2, toolType, color, id, text, pencilSize }) => {
+export const createElement = ({ x1, y1, x2, y2, toolType, color, id, text, pencilSize, textSize }) => {
   let roughElement;
 
   // Switch case to handle different tool types
@@ -59,6 +59,7 @@ export const createElement = ({ x1, y1, x2, y2, toolType, color, id, text, penci
         y1,
         color,
         text: text || '',
+        textSize,
       };
     default: // Handle unsupported tool types
       throw new Error("Something went wrong when creating element");

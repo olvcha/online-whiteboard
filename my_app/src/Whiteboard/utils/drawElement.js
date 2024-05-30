@@ -21,7 +21,7 @@ const drawPencilElement = (context, element) => {
 // Function to draw text element
 const drawTextElement = (context, element) => {
   context.textBaseline = "top"; // Set text baseline to top
-  context.font = "24px sans-serif"; // Set font style
+  context.font = element.textSize + "px sans-serif"; // Set font style and text size
   context.fillStyle = element.color; // Set fill color
   context.fillText(element.text, element.x1, element.y1); // Draw the text
 };

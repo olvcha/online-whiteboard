@@ -11,7 +11,7 @@ import downloadIcon from "../resources/icons/download.svg";
 import ColorPicker from "./ColorPicker";
 import { toolTypes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
-import { setElements, setToolType, setImage, setPencilSize } from "./whiteboardSlice";
+import { setElements, setToolType, setImage, setPencilSize, setTextSize } from "./whiteboardSlice";
 import { emitClearWhiteboard } from "../socketConn/socketConn";
 import exportCanvas from "../Whiteboard/utils/canvasExport";
 
@@ -76,27 +76,36 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
         onResize(parseInt(width, 10), parseInt(height, 10));
     };
 
+    // Handle pencil size change
     const handlePencilSizeChange = (size) => {
         //setPencilSizeOption(size);
         console.log("Pencil size changed to:", size);
         dispatch(setPencilSize(size));
       };
 
+    // Handle text size change
+    const handleTextSizeChange = (size) => {
+        dispatch(setTextSize(size));
+    }
+
     return (
         <div className="menu_container">
 
-                    {/* New section for pencil size selection */}
             <div className="pencil-size-section">
                 <p>Choose Pencil Size:</p>
                 <div>
-                    <button onClick={() => {
-                        handlePencilSizeChange(1);
-                        console.log("siper1");
-                    }}>1
-                    </button>
-
+                    <button onClick={() => handlePencilSizeChange(1)}>1</button>
                     <button onClick={() => handlePencilSizeChange(5)}>5</button>
                     <button onClick={() => handlePencilSizeChange(10)}>10</button>
+                </div>
+            </div>
+
+            <div className="text-size-section">
+                <p>Choose Text Size:</p>
+                <div>
+                    <button onClick={() => handleTextSizeChange(10)}>10</button>
+                    <button onClick={() => handleTextSizeChange(20)}>20</button>
+                    <button onClick={() => handleTextSizeChange(30)}>30</button>
                 </div>
             </div>
 
