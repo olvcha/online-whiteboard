@@ -149,6 +149,10 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
             </div>
 
             <div className="resize_form">
+            <div className="resize_form_title">
+                <p>Choose Canvas Size:</p>
+            </div>
+            <div className="resize_form_content">
                 <div className="resize_form_input">
                     <label>
                         Width:
@@ -171,6 +175,8 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
                 </div>
                 <button onClick={handleResize}>Resize</button>
             </div>
+        </div>
+
             <IconButton src={rectangleIcon} type={toolTypes.RECTANGLE} />
             <IconButton src={lineIcon} type={toolTypes.LINE} />
             <IconButton src={pencilIcon} type={toolTypes.PENCIL} />

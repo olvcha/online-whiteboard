@@ -6,14 +6,14 @@ body {
 }
 
 .menu_container {
-  position: absolute;
+  position: sticky;
   top: 0;
   width: 1200px; /* Adjusted width to better accommodate form */
   left: calc(29% - 300px); /* Adjusted to center the wider menu */
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   background: #F7B4A7;
-  height: 100px;
+  height: 140px;
   display: flex;
   justify-content: center; /* Center the content */
   align-items: center;
@@ -97,34 +97,46 @@ body {
 
 .resize_form {
   display: flex;
-  flex-direction: row; /* Stack elements vertically */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
   align-items: flex-start; /* Align form elements to the start */
   margin-right: 15px; /* Space between form and buttons */
-  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
-.resize_form label {
-  margin: 0 2px; /* Reduced margin for closer spacing */
+.resize_form_title {
+  font-family: 'Roboto', sans-serif;
+  width: 100%; /* Take full width of the container */
+  text-align: center; /* Center the text */
+  margin-top: 9px;
+  margin-bottom: -2px;
+}
+
+.resize_form_content {
+  display: flex;
+  flex-direction: row; /* Arrange form content in a row */
 }
 
 .resize_form_input {
   display: flex;
-  flex-direction: column;
-  font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
-  margin-right: 10px;
+  flex-direction: column; /* Stack labels vertically */
+  margin-right: 20px; /* Space between input column and button */
 }
 
-.resize_form .width_input {
+.resize_form label {
+  margin-bottom: 10px; /* Space between labels */
+}
+
+.width_input {
   width: 60px;
   margin-left: 11px; /* Move width input to the right */
-  margin-bottom: 10px; /* Add margin to pad the height input */
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
-.resize_form .height_input {
+.height_input {
   width: 60px;
   margin-left: 5px;
-  margin-bottom: 5px;
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
@@ -132,15 +144,13 @@ body {
   width: 80px;
   height: 40px;
   border-radius: 8px;
-  border: None;
+  border: none;
+  margin-right: 20px;
+  margin-bottom: 55px;
   background: #94DDDE;
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
   font-size: 15px;
-  flex-shrink: 0; /* Prevent buttons from shrinking */
   transition: 0.3s;
-  margin-top: 10px;
-  margin-left: 20px;
-  margin-right: 20px;
 }
 
 .resize_form button:hover {
@@ -151,13 +161,14 @@ body {
   display: flex;
   flex-direction: column;
   margin-right: 40px;
-  margin-top: 25px;
+  margin-bottom: 10px;
   justify-content: center; /* Center the content */
   align-items: center;
 }
 .pencil_size_buttons_section {
   display: flex;
   flex-direction: row;
+  margin-top: 2px;
 }
 .pencil_size_button {
   width: 40px;

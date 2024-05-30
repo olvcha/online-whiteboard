@@ -1,5 +1,5 @@
 body.join-create-room-background {
-    background-color: #ffffff; /* Set background color to white */
+    background-color: #F0ABC1; /* Set background color to white */
 }
 .container {
     max-width: 1200px;
@@ -18,26 +18,29 @@ body.join-create-room-background {
 .column-half {
     padding: 15px;
     box-sizing: border-box;
+    
 }
 
 .column-full {
     flex: 0 0 100%;
     max-width: 100%;
+    
 }
 
 .column-half {
     flex: 0 0 48%;
     max-width: 48%;
+    background-color: #FEFEFE
 }
 
 .text-center {
     text-align: center;
-    color: #495057;
+    color: #2B4B82;
 
 }
 
 .custom-text-primary {
-    color: #e786ea;
+    color: #F7B4A7;
 }
 
 .margin-y-large {
@@ -127,23 +130,23 @@ body.join-create-room-background {
 }
 
 .button-dark {
-    color: #fff;
-    background-color: #e786ea;
-    border-color: #e786ea;
+    color: #495057;
+    background-color: #94DDDE;
+    border-color: #94DDDE;
 }
 
 .button-outline-primary {
-    color: #e786ea;
+    color: #2B4B82;
     background-color: transparent;
     background-image: none;
-    border-color: #e786ea;
+    border-color: #94DDDE;
 }
 
 .button-outline-dark {
-    color: #495057;
+    color: #94DDDE;
     background-color: transparent;
     background-image: none;
-    border-color: #495057;
+    border-color: #FEFEFE;
 }
 
 .button-small {
@@ -158,9 +161,10 @@ body.join-create-room-background {
 }
 
 h1.custom-text-primary {
-    color: #e786ea;
+    color: #2B4B82;
 }
 
 input::placeholder {
-    color: #6c757d;
+    color: #495057;
 }
+
