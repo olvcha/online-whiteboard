@@ -11,7 +11,7 @@ import downloadIcon from "../resources/icons/download.svg";
 import ColorPicker from "./ColorPicker";
 import { toolTypes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
-import { setElements, setToolType, setImage } from "./whiteboardSlice";
+import { setElements, setToolType, setImage, setPencilSize } from "./whiteboardSlice";
 import { emitClearWhiteboard } from "../socketConn/socketConn";
 import exportCanvas from "../Whiteboard/utils/canvasExport";
 
@@ -50,6 +50,8 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
     const [showColorPicker, setShowColorPicker] = useState(false);
     const [width, setWidth] = useState(initialCanvasSize.width);
     const [height, setHeight] = useState(initialCanvasSize.height);
+    //const [pencilSizeOption, setPencilSizeOption] = useState(false); // State for pencil size option
+
 
     useEffect(() => {
         setWidth(initialCanvasSize.width);
@@ -74,8 +76,30 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
         onResize(parseInt(width, 10), parseInt(height, 10));
     };
 
+    const handlePencilSizeChange = (size) => {
+        //setPencilSizeOption(size);
+        console.log("Pencil size changed to:", size);
+        dispatch(setPencilSize(size));
+      };
+
     return (
         <div className="menu_container">
+
+                    {/* New section for pencil size selection */}
+            <div className="pencil-size-section">
+                <p>Choose Pencil Size:</p>
+                <div>
+                    <button onClick={() => {
+                        handlePencilSizeChange(1);
+                        console.log("siper1");
+                    }}>1
+                    </button>
+
+                    <button onClick={() => handlePencilSizeChange(5)}>5</button>
+                    <button onClick={() => handlePencilSizeChange(10)}>10</button>
+                </div>
+            </div>
+
             <div className="resize_form">
                 <div className="resize_form_input">
                     <label>
