@@ -9,7 +9,7 @@ export const store = configureStore({
     whiteboard: whiteboardSliceReducer, // Reducer for whiteboard slice
     cursor: cursorSliceReducer, // Reducer for cursor slice
   },
-  // Configure middleware to handle serialization of actions and state
+  // Configure middleware to handle serialization of actions and state 
   middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
