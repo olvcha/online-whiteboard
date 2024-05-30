@@ -8,7 +8,7 @@ const imageCache = new Map(); // Cache for storing images
 // Function to draw pencil element
 const drawPencilElement = (context, element) => {
   const myStroke = getStroke(element.points, {
-    size: 10, // Set stroke size
+    size: element.pencilSize, // Set stroke size
   });
 
   const pathData = getSvgPathFromStroke(myStroke); // Get SVG path data from stroke

@@ -28,6 +28,7 @@ const Whiteboard = ({ user }) => {
     const elements = useSelector((state) => state.whiteboard.elements); // Elements from Redux store
     const imageToInsert = useSelector((state) => state.whiteboard.image); // Image to insert from Redux store
     const selectedColor = useSelector((state) => state.whiteboard.color); // Selected color from Redux store
+    const pencilSize = useSelector((state) => state.whiteboard.pencilSize); // Pencil size from Redux store
     const canvasSize = useSelector((state) => state.whiteboard.canvasSize); // Canvas size from Redux store
 
     const [action, setAction] = useState(null); // Current action state
@@ -97,6 +98,7 @@ const Whiteboard = ({ user }) => {
                     toolType,
                     id: uuid(),
                     color: selectedColor,
+                    pencilSize: pencilSize,
                 });
                 setAction(actions.DRAWING); // Set action to drawing
                 setSelectedElement(element); // Set the selected element
@@ -203,6 +205,7 @@ const Whiteboard = ({ user }) => {
                             points,
                             type: elements[index].type,
                             color: elements[index].color,
+                            size: elements[index].pencilSize,
                         },
                         elements
                     );
