@@ -8,6 +8,12 @@ import selectionIcon from "../resources/icons/selection.svg";
 import imgIcon from "../resources/icons/img.svg";
 import colorIcon from "../resources/icons/color.svg";
 import downloadIcon from "../resources/icons/download.svg";
+import pencilSize5 from "../resources/icons/pencil-size-5.svg";
+import pencilSize10 from "../resources/icons/pencil-size-10.svg";
+import pencilSize15 from "../resources/icons/pencil-size-15.svg";
+import textSize10 from "../resources/icons/font-size-10.svg";
+import textSize20 from "../resources/icons/font-size-20.svg";
+import textSize30 from "../resources/icons/font-size-30.svg";
 import ColorPicker from "./ColorPicker";
 import { toolTypes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
@@ -78,8 +84,6 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
 
     // Handle pencil size change
     const handlePencilSizeChange = (size) => {
-        //setPencilSizeOption(size);
-        console.log("Pencil size changed to:", size);
         dispatch(setPencilSize(size));
       };
 
@@ -91,21 +95,55 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
     return (
         <div className="menu_container">
 
-            <div className="pencil-size-section">
+            <div className="pencil_size_section">
                 <p>Choose Pencil Size:</p>
-                <div>
-                    <button onClick={() => handlePencilSizeChange(1)}>1</button>
-                    <button onClick={() => handlePencilSizeChange(5)}>5</button>
-                    <button onClick={() => handlePencilSizeChange(10)}>10</button>
+                <div className="pencil_size_buttons_section">
+                    <button 
+                    className="pencil_size_button"
+                    onClick={() => handlePencilSizeChange(5)}
+                >
+                    <img width="80%" height="80%" src={pencilSize5} alt="Pencil Size 5"/>
+                    </button>
+                    
+                    <button 
+                    className="pencil_size_button"
+                    onClick={() => handlePencilSizeChange(10)}
+                >
+                    <img width="80%" height="80%" src={pencilSize10} alt="Pencil Size 10"/>
+                    </button>
+
+                    <button 
+                    className="pencil_size_button"
+                    onClick={() => handlePencilSizeChange(15)}
+                >
+                    <img width="80%" height="80%" src={pencilSize15} alt="Pencil Size 15"/>
+                    </button>
                 </div>
             </div>
 
-            <div className="text-size-section">
+            <div className="pencil_size_section">
                 <p>Choose Text Size:</p>
-                <div>
-                    <button onClick={() => handleTextSizeChange(10)}>10</button>
-                    <button onClick={() => handleTextSizeChange(20)}>20</button>
-                    <button onClick={() => handleTextSizeChange(30)}>30</button>
+                <div className="pencil_size_buttons_section">
+                    <button 
+                        className="pencil_size_button"
+                        onClick={() => handleTextSizeChange(10)}
+                    >
+                        <img width="120%" height="120%" src={textSize10} alt="Text Size 10"/>
+                        </button>
+
+                    <button 
+                    className="pencil_size_button"
+                    onClick={() => handleTextSizeChange(20)}
+                    >
+                    <img width="80%" height="80%" src={textSize20} alt="Text Size 20"/>
+                    </button>
+
+                    <button 
+                    className="pencil_size_button"
+                    onClick={() => handleTextSizeChange(30)}
+                    >
+                    <img width="80%" height="80%" src={textSize30} alt="Text Size 30"/>
+                    </button>
                 </div>
             </div>
 

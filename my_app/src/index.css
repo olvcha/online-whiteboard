@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  background-color: #8690ea; /* Apply the Roboto font */
+  /*background-color: #8690ea;  Apply the Roboto font */
 }
 
 .menu_container {
@@ -12,8 +12,8 @@ body {
   left: calc(29% - 300px); /* Adjusted to center the wider menu */
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
-  background: #EEEEEE;
-  height: 80px;
+  background: #F7B4A7;
+  height: 100px;
   display: flex;
   justify-content: center; /* Center the content */
   align-items: center;
@@ -28,15 +28,16 @@ body {
   align-items: center;
   border-radius: 8px;
   border: none;
+  margin: 5px;
   transition: 0.3s;
-  background: #8690ea;
+  background: #94DDDE;
   flex-shrink: 0; /* Prevent buttons from shrinking */
   margin-left: 5px; /* Add margin to space between buttons */
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
 .menu_button:hover {
-  background: #da9cec;
+  background: #FEFEFE;
 }
 
 .menu_button_active {
@@ -44,7 +45,7 @@ body {
   height: 40px;
   border-radius: 8px;
   border: none;
-  background: #E8D5C4;
+  background: #FEFEFE;
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
 }
 
@@ -60,7 +61,7 @@ body {
 }
 
 .export_button:hover {
-  background-color: #da9cec;
+  background-color: #FEFEFE;
 }
 
 .cursor {
@@ -71,8 +72,8 @@ body {
   display: flex;
   flex-wrap: wrap;
   position: absolute;
-  top: 80px; /* Adjust based on the menu position */
-  left: 370px;
+  top: 100px; /* Adjust based on the menu position */
+  right: 100px;
   background: white;
   border: 1px solid #ccc;
   padding: 10px;
@@ -131,10 +132,52 @@ body {
   width: 80px;
   height: 40px;
   border-radius: 8px;
+  border: None;
+  background: #94DDDE;
   font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
   font-size: 15px;
   flex-shrink: 0; /* Prevent buttons from shrinking */
+  transition: 0.3s;
   margin-top: 10px;
   margin-left: 20px;
   margin-right: 20px;
 }
+
+.resize_form button:hover {
+  background-color: #FEFEFE;
+}
+
+.pencil_size_section {
+  display: flex;
+  flex-direction: column;
+  margin-right: 40px;
+  margin-top: 25px;
+  justify-content: center; /* Center the content */
+  align-items: center;
+}
+.pencil_size_buttons_section {
+  display: flex;
+  flex-direction: row;
+}
+.pencil_size_button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+  background: #94DDDE;
+  border-radius: 10px;
+  margin-bottom: 35px;
+
+  margin-top: -5px;
+  border: none;
+  transition: 0.3s;
+  cursor: pointer;
+  background-size: cover;
+}
+
+.pencil_size_button:hover {
+  background-color: #FEFEFE;
+}
+
