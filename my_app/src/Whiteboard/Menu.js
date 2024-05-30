@@ -8,6 +8,7 @@ import selectionIcon from "../resources/icons/selection.svg";
 import imgIcon from "../resources/icons/img.svg";
 import colorIcon from "../resources/icons/color.svg";
 import downloadIcon from "../resources/icons/download.svg";
+import removeIcon from "../resources/icons/remove.svg";
 import pencilSize5 from "../resources/icons/pencil-size-5.svg";
 import pencilSize10 from "../resources/icons/pencil-size-10.svg";
 import pencilSize15 from "../resources/icons/pencil-size-15.svg";
@@ -173,9 +174,10 @@ const Menu = ({ canvasRef, onResize, initialCanvasSize }) => {
             <IconButton src={rectangleIcon} type={toolTypes.RECTANGLE} />
             <IconButton src={lineIcon} type={toolTypes.LINE} />
             <IconButton src={pencilIcon} type={toolTypes.PENCIL} />
-            <IconButton src={rubberIcon} isRubber />
             <IconButton src={textIcon} type={toolTypes.TEXT} />
             <IconButton src={selectionIcon} type={toolTypes.SELECTION} />
+            <IconButton src={rubberIcon} type={toolTypes.DELETE} />
+            <IconButton src={removeIcon} isRubber />
             <label className="menu_button">
                 <img width="70%" height="70%" src={imgIcon} alt="Upload" />
                 <input

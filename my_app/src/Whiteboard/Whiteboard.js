@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Menu from "./Menu";
 import rough from "roughjs/bundled/rough.esm";
 import { actions, cursorPositions, toolTypes } from "../constants";
+import { setElements } from "./whiteboardSlice.js"
 import {
     createElement,
     drawElement,
@@ -152,6 +153,16 @@ const Whiteboard = ({ user }) => {
                 }
                 break;
             }
+
+            case toolTypes.DELETE: {
+                const element = getElementAtPosition(x, y, elements);
+                if (element) {
+                    const newElements = elements.filter(el => el.id !== element.id);
+                    dispatch(setElements(newElements));
+                }
+                break;
+            }
+
             case toolTypes.IMAGE: {
                 if (imageToInsert) {
                     const element = {
